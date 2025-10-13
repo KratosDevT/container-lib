@@ -1,64 +1,415 @@
 #include "deque.h"
 #include <iostream>
 #include <cassert>
+#include <utility>
 
 using namespace STDev;
+
+// ============ TEST PUSH ============
 
 void test_basic_push_back()
 {
     std::cout << "Test: push_back basico... ";
-    deque<int> deq1;
+    deque<int> d;
 
-    deq1.push_back(1);
-    deq1.push_back(2);
-    deq1.push_back(3);
+    d.push_back(10);
+    d.push_back(20);
+    d.push_back(30);
 
-    assert(deq1.size() == 3);
-    assert(deq1[0] == 1);
-    assert(deq1[1] == 2);
-    assert(deq1[2] == 3);
+    assert(d.size() == 3);
+    assert(d[0] == 10);
+    assert(d[1] == 20);
+    assert(d[2] == 30);
 
     std::cout << "OK\n";
-    deq1.print_structure();
 }
 
 void test_basic_push_front()
 {
     std::cout << "Test: push_front basico... ";
-    deque<int> deq2;
+    deque<int> d;
 
-    deq2.push_front(1);
-    deq2.push_front(2);
-    deq2.push_front(3);
+    d.push_front(10);
+    d.push_front(20);
+    d.push_front(30);
 
-    assert(deq2.size() == 3);
-    assert(deq2[0] == 3);
-    assert(deq2[1] == 2);
-    assert(deq2[2] == 1);
+    assert(d.size() == 3);
+    assert(d[0] == 30);
+    assert(d[1] == 20);
+    assert(d[2] == 10);
 
     std::cout << "OK\n";
-    deq2.print_structure();
 }
 
-void test_mixed_operations()
+void test_mixed_push()
 {
-    std::cout << "Test: operazioni miste... ";
+    std::cout << "Test: push misti... ";
+    deque<int> d;
+
+    d.push_back(5);
+    d.push_front(3);
+    d.push_back(7);
+    d.push_front(1);
+
+    assert(d.size() == 4);
+    assert(d[0] == 1);
+    assert(d[1] == 3);
+    assert(d[2] == 5);
+    assert(d[3] == 7);
+
+    std::cout << "OK\n";
+}
+
+void test_large_push_back()
+{
+    std::cout << "Test: molti push_back... ";
+    deque<int> d;
+
+    for (int i = 0; i < 25; i++)
+    {
+        d.push_back(i);
+    }
+
+    assert(d.size() == 25);
+    for (int i = 0; i < 25; i++)
+    {
+        assert(d[i] == i);
+    }
+
+    std::cout << "OK\n";
+}
+
+void test_large_push_front()
+{
+    std::cout << "Test: molti push_front... ";
+    deque<int> d;
+
+    for (int i = 0; i < 25; i++)
+    {
+        d.push_front(i);
+    }
+
+    assert(d.size() == 25);
+    for (int i = 0; i < 25; i++)
+    {
+        assert(d[i] == 24 - i);
+    }
+
+    std::cout << "OK\n";
+}
+
+// ============ TEST POP ============
+
+void test_pop_back()
+{
+    std::cout << "Test: pop_back()... ";
     deque<int> d;
 
     d.push_back(1);
-    d.push_front(2);
+    d.push_back(2);
     d.push_back(3);
-    d.push_front(4);
+    d.push_back(4);
+    d.push_back(5);
 
+    assert(d.size() == 5);
+
+    d.pop_back();
     assert(d.size() == 4);
-    assert(d[0] == 4);
+    assert(d.back() == 4);
+
+    d.pop_back();
+    d.pop_back();
+    assert(d.size() == 2);
+    assert(d[0] == 1);
     assert(d[1] == 2);
-    assert(d[2] == 1);
-    assert(d[3] == 3);
 
     std::cout << "OK\n";
-    d.print_structure();
 }
+
+void test_pop_front()
+{
+    std::cout << "Test: pop_front()... ";
+    deque<int> d;
+
+    d.push_back(1);
+    d.push_back(2);
+    d.push_back(3);
+    d.push_back(4);
+    d.push_back(5);
+
+    assert(d.size() == 5);
+
+    d.pop_front();
+    assert(d.size() == 4);
+    assert(d.front() == 2);
+
+    d.pop_front();
+    d.pop_front();
+    assert(d.size() == 2);
+    assert(d[0] == 4);
+    assert(d[1] == 5);
+
+    std::cout << "OK\n";
+}
+
+void test_pop_until_empty()
+{
+    std::cout << "Test: pop fino a vuoto... ";
+    deque<int> d;
+
+    d.push_back(1);
+    d.push_back(2);
+    d.push_back(3);
+
+    d.pop_back();
+    d.pop_back();
+    d.pop_back();
+
+    assert(d.empty());
+    assert(d.size() == 0);
+
+    std::cout << "OK\n";
+}
+
+void test_pop_mixed()
+{
+    std::cout << "Test: pop misti... ";
+    deque<int> d;
+
+    for (int i = 1; i <= 10; i++)
+    {
+        d.push_back(i);
+    }
+
+    d.pop_front();  // rimuove 1
+    d.pop_back();   // rimuove 10
+    d.pop_front();  // rimuove 2
+    d.pop_back();   // rimuove 9
+
+    assert(d.size() == 6);
+    assert(d.front() == 3);
+    assert(d.back() == 8);
+
+    std::cout << "OK\n";
+}
+
+// ============ TEST FRONT/BACK ============
+
+void test_front_back()
+{
+    std::cout << "Test: front() e back()... ";
+    deque<int> d;
+
+    d.push_back(10);
+    d.push_back(20);
+    d.push_back(30);
+
+    assert(d.front() == 10);
+    assert(d.back() == 30);
+
+    d.front() = 100;
+    d.back() = 300;
+
+    assert(d.front() == 100);
+    assert(d.back() == 300);
+    assert(d[0] == 100);
+    assert(d[2] == 300);
+
+    std::cout << "OK\n";
+}
+
+void test_front_back_single()
+{
+    std::cout << "Test: front/back con 1 elemento... ";
+    deque<int> d;
+
+    d.push_back(42);
+
+    assert(d.front() == 42);
+    assert(d.back() == 42);
+    assert(&d.front() == &d.back());
+
+    std::cout << "OK\n";
+}
+
+// ============ TEST AT ============
+
+void test_at_valid()
+{
+    std::cout << "Test: at() valido... ";
+    deque<int> d;
+
+    d.push_back(10);
+    d.push_back(20);
+    d.push_back(30);
+
+    assert(d.at(0) == 10);
+    assert(d.at(1) == 20);
+    assert(d.at(2) == 30);
+
+    d.at(1) = 200;
+    assert(d.at(1) == 200);
+
+    std::cout << "OK\n";
+}
+
+void test_at_exception()
+{
+    std::cout << "Test: at() con eccezione... ";
+    deque<int> d;
+
+    d.push_back(1);
+    d.push_back(2);
+
+    bool exception_thrown = false;
+    try
+    {
+        d.at(10);
+    }
+    catch (const std::out_of_range&)
+    {
+        exception_thrown = true;
+    }
+    assert(exception_thrown);
+
+    exception_thrown = false;
+    try
+    {
+        d.at(2);
+    }
+    catch (const std::out_of_range&)
+    {
+        exception_thrown = true;
+    }
+    assert(exception_thrown);
+
+    std::cout << "OK\n";
+}
+
+// ============ TEST COPY ============
+
+void test_copy_constructor()
+{
+    std::cout << "Test: copy constructor... ";
+    deque<int> d1;
+
+    d1.push_back(1);
+    d1.push_back(2);
+    d1.push_back(3);
+    d1.push_front(0);
+
+    deque<int> d2(d1);
+
+    assert(d2.size() == 4);
+    assert(d2[0] == 0);
+    assert(d2[1] == 1);
+    assert(d2[2] == 2);
+    assert(d2[3] == 3);
+
+    // Modifica d1 non deve influenzare d2
+    d1[0] = 999;
+    assert(d2[0] == 0);
+
+    d1.push_back(100);
+    assert(d2.size() == 4);
+
+    std::cout << "OK\n";
+}
+
+void test_copy_assignment()
+{
+    std::cout << "Test: copy assignment... ";
+    deque<int> d1;
+
+    d1.push_back(1);
+    d1.push_back(2);
+    d1.push_back(3);
+
+    deque<int> d2;
+    d2.push_back(100);
+    d2.push_back(200);
+
+    d2 = d1;
+
+    assert(d2.size() == 3);
+    assert(d2[0] == 1);
+    assert(d2[1] == 2);
+    assert(d2[2] == 3);
+
+    d1[1] = 888;
+    assert(d2[1] == 2);
+
+    std::cout << "OK\n";
+}
+
+void test_self_assignment()
+{
+    std::cout << "Test: self assignment... ";
+    deque<int> d;
+
+    d.push_back(1);
+    d.push_back(2);
+    d.push_back(3);
+
+    d = d;
+
+    assert(d.size() == 3);
+    assert(d[0] == 1);
+    assert(d[1] == 2);
+    assert(d[2] == 3);
+
+    std::cout << "OK\n";
+}
+
+// ============ TEST MOVE ============
+
+void test_move_constructor()
+{
+    std::cout << "Test: move constructor... ";
+    deque<int> d1;
+
+    d1.push_back(1);
+    d1.push_back(2);
+    d1.push_back(3);
+
+    deque<int> d2(std::move(d1));
+
+    assert(d2.size() == 3);
+    assert(d2[0] == 1);
+    assert(d2[1] == 2);
+    assert(d2[2] == 3);
+
+    assert(d1.empty());
+    assert(d1.size() == 0);
+
+    std::cout << "OK\n";
+}
+
+void test_move_assignment()
+{
+    std::cout << "Test: move assignment... ";
+    deque<int> d1;
+
+    d1.push_back(1);
+    d1.push_back(2);
+    d1.push_back(3);
+
+    deque<int> d2;
+    d2.push_back(999);
+
+    d2 = std::move(d1);
+
+    assert(d2.size() == 3);
+    assert(d2[0] == 1);
+    assert(d2[1] == 2);
+    assert(d2[2] == 3);
+
+    assert(d1.empty());
+
+    std::cout << "OK\n";
+}
+
+// ============ TEST UTILITIES ============
 
 void test_empty()
 {
@@ -72,45 +423,8 @@ void test_empty()
     assert(!d.empty());
     assert(d.size() == 1);
 
-    std::cout << "OK\n";
-}
-
-void test_large_push_back()
-{
-    std::cout << "Test: molti push_back (blocchi multipli)... ";
-    deque<int> d;
-
-    // Inserisce più di BLOCK_SIZE elementi
-    for (int i = 0; i < 25; i++)
-    {
-        d.push_back(i);
-    }
-
-    assert(d.size() == 25);
-    for (int i = 0; i < 25; i++)
-    {
-        assert(d[i] == i);
-    }
-
-    std::cout << "OK\n";
-    d.print_structure();
-}
-
-void test_large_push_front()
-{
-    std::cout << "Test: molti push_front (blocchi multipli)... ";
-    deque<int> d;
-
-    for (int i = 0; i < 25; i++)
-    {
-        d.push_front(i);
-    }
-
-    assert(d.size() == 25);
-    for (int i = 0; i < 25; i++)
-    {
-        assert(d[i] == 24 - i);
-    }
+    d.pop_back();
+    assert(d.empty());
 
     std::cout << "OK\n";
 }
@@ -139,7 +453,7 @@ void test_clear()
 
 void test_operator_access()
 {
-    std::cout << "Test: operator[] con const... ";
+    std::cout << "Test: operator[]... ";
     deque<int> d;
 
     for (int i = 0; i < 10; i++)
@@ -156,12 +470,13 @@ void test_operator_access()
     std::cout << "OK\n";
 }
 
-void test_stress()
+// ============ TEST STRESS ============
+
+void test_stress_alternate()
 {
-    std::cout << "Test: stress test (100 elementi misti)... ";
+    std::cout << "Test: stress alternato... ";
     deque<int> d;
 
-    // Alterna push_back e push_front
     for (int i = 0; i < 50; i++)
     {
         d.push_back(i);
@@ -170,7 +485,6 @@ void test_stress()
 
     assert(d.size() == 100);
 
-    // Verifica che l'ordine sia corretto
     for (int i = 0; i < 50; i++)
     {
         assert(d[i] == -50 + i);
@@ -183,77 +497,90 @@ void test_stress()
     std::cout << "OK\n";
 }
 
-void test_single_element()
+void test_stress_push_pop()
 {
-    std::cout << "Test: singolo elemento... ";
+    std::cout << "Test: stress push/pop... ";
     deque<int> d;
 
-    d.push_back(42);
-    assert(d.size() == 1);
-    assert(d[0] == 42);
+    // Push molti elementi
+    for (int i = 0; i < 100; i++)
+    {
+        d.push_back(i);
+    }
 
-    d.clear();
+    // Pop metà da dietro
+    for (int i = 0; i < 50; i++)
+    {
+        d.pop_back();
+    }
 
-    d.push_front(99);
-    assert(d.size() == 1);
-    assert(d[0] == 99);
+    assert(d.size() == 50);
+    assert(d.front() == 0);
+    assert(d.back() == 49);
+
+    // Pop metà da davanti
+    for (int i = 0; i < 25; i++)
+    {
+        d.pop_front();
+    }
+
+    assert(d.size() == 25);
+    assert(d.front() == 25);
+    assert(d.back() == 49);
 
     std::cout << "OK\n";
 }
 
-void test_incremental_push_back()
-{
-    std::cout << "Test: incremental push_back";
-    deque<int> deq1;
-
-    deq1.push_back(1);
-    deq1.push_back(2);
-    deq1.push_back(3);
-    deq1.push_back(4);
-    deq1.push_back(5);
-    deq1.push_front(0);
-    deq1.push_back(6);
-    deq1.push_back(7);
-    deq1.push_back(8);
-
-    deq1.print_structure();
-
-
-    deq1.push_back(9);
-    deq1.push_back(10);
-    deq1.push_back(11);
-    deq1.push_back(12);
-    deq1.push_back(13);
-    deq1.push_back(14);
-    deq1.push_back(15);
-    deq1.push_back(16);
-    deq1.push_back(17);
-
-    deq1.print_structure();
-}
+// ============ MAIN ============
 
 int main()
 {
-    std::cout << "=== Test Suite Deque ===\n\n";
-    test_incremental_push_back();
-    //test_basic_push_back();
-    //test_basic_push_front();
+    std::cout << "\n";
+    std::cout << "TEST SUITE DEQUE - COMPLETA\n";
+    std::cout << "\n";
 
-    //test_mixed_operations();
+    std::cout << "--- TEST PUSH ---\n";
+    test_basic_push_back();
+    test_basic_push_front();
+    test_mixed_push();
+    test_large_push_back();
+    test_large_push_front();
 
-    //test_empty();
+    std::cout << "\n--- TEST POP ---\n";
+    test_pop_back();
+    test_pop_front();
+    test_pop_until_empty();
+    test_pop_mixed();
 
-    //test_large_push_back();
-    //test_large_push_front();
+    std::cout << "\n--- TEST FRONT/BACK ---\n";
+    test_front_back();
+    test_front_back_single();
 
-    //test_clear();
+    std::cout << "\n--- TEST AT ---\n";
+    test_at_valid();
+    test_at_exception();
 
-    //test_operator_access();
-    //test_single_element();
+    std::cout << "\n--- TEST COPY ---\n";
+    test_copy_constructor();
+    test_copy_assignment();
+    test_self_assignment();
 
-    //test_stress();
+    std::cout << "\n--- TEST MOVE ---\n";
+    test_move_constructor();
+    test_move_assignment();
 
-    std::cout << "\n=== Tutti i test passati! ===\n";
+    std::cout << "\n--- TEST UTILITIES ---\n";
+    test_empty();
+    test_clear();
+    test_operator_access();
+
+    std::cout << "\n--- TEST STRESS ---\n";
+    test_stress_alternate();
+    test_stress_push_pop();
+
+    std::cout << "\n";
+    std::cout << "TUTTI I TEST SONO PASSATI!\n";
+    std::cout << "\n";
 
     return 0;
 }
