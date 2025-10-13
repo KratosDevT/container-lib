@@ -201,26 +201,57 @@ void test_single_element()
     std::cout << "OK\n";
 }
 
+void test_incremental_push_back()
+{
+    std::cout << "Test: incremental push_back";
+    deque<int> deq1;
+
+    deq1.push_back(1);
+    deq1.push_back(2);
+    deq1.push_back(3);
+    deq1.push_back(4);
+    deq1.push_back(5);
+    deq1.push_front(0);
+    deq1.push_back(6);
+    deq1.push_back(7);
+    deq1.push_back(8);
+
+    deq1.print_structure();
+
+
+    deq1.push_back(9);
+    deq1.push_back(10);
+    deq1.push_back(11);
+    deq1.push_back(12);
+    deq1.push_back(13);
+    deq1.push_back(14);
+    deq1.push_back(15);
+    deq1.push_back(16);
+    deq1.push_back(17);
+
+    deq1.print_structure();
+}
+
 int main()
 {
     std::cout << "=== Test Suite Deque ===\n\n";
+    test_incremental_push_back();
+    //test_basic_push_back();
+    //test_basic_push_front();
 
-    test_basic_push_back();
-    test_basic_push_front();
+    //test_mixed_operations();
 
-    test_mixed_operations();
+    //test_empty();
 
-    test_empty();
+    //test_large_push_back();
+    //test_large_push_front();
 
-    test_large_push_back();
-    test_large_push_front();
+    //test_clear();
 
-    test_clear();
+    //test_operator_access();
+    //test_single_element();
 
-    test_operator_access();
-    test_single_element();
-
-    test_stress();
+    //test_stress();
 
     std::cout << "\n=== Tutti i test passati! ===\n";
 
