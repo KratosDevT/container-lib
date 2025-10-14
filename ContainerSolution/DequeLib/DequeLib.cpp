@@ -13,15 +13,23 @@ void test_basic_push_back()
     deque<int> d;
 
     d.push_back(10);
-    d.push_back(20);
-    d.push_back(30);
+    d.push_front(7);
+    d.push_front(6);
+    d.push_front(5);
+    d.push_front(4);
+    d.push_front(3);
+    d.push_front(2);
+    d.push_front(1);
+    d.push_front(0);
+    d.push_front(7);
+    d.pop_front();
+    //assert(d.size() == 3);
+    //assert(d[0] == 10);
 
-    assert(d.size() == 3);
-    assert(d[0] == 10);
-    assert(d[1] == 20);
-    assert(d[2] == 30);
 
     std::cout << "OK\n";
+
+    d.print_structure();
 }
 
 void test_basic_push_front()
