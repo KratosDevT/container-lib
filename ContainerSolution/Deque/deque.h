@@ -9,18 +9,69 @@ namespace STDev
 	class deque
 	{
 	private:
-		static const size_t BLOCK_SIZE = 8;  // Elementi per blocco
+		static const size_t BLOCK_SIZE = 8;
 
-		T** map;              // Array di puntatori ai blocchi
-		size_t map_size;      // Quanti puntatori nel map
-		size_t first_block;   // Indice del primo blocco usato
-		size_t last_block;    // Indice dell'ultimo blocco usato
-		size_t first_elem;    // Indice nel primo blocco
-		size_t last_elem;     // Indice nell'ultimo blocco
-		size_t count;         // Numero totale di elementi
+		T** map;
+		size_t map_size;
+		size_t first_block;
+		size_t last_block;
+		size_t first_elem;
+		size_t last_elem;
+		size_t count;
+
+		void initialize_map(size_t initial_size)
+		{
+			map_size = initial_size;
+			map = new T * [map_size];
+			for (size_t i = 0; i < map_size; i++)
+			{
+				map[i] = nullptr;
+			}
+			first_block = map_size / 2;
+			last_block = first_block;
+		}
+
+		void deallocate_map()
+		{
+			if (map)
+			{
+				delete[] map;
+				map = nullptr;
+			}
+		}
+
+		T* allocate_block()
+		{
+			return new T[BLOCK_SIZE];
+		}
+
+		void reallocate_map()
+		{
+			size_t new_map_size = map_size * 2;
+			T** new_map = new T * [new_map_size];
+
+			for (size_t i = 0; i < new_map_size; i++)
+			{
+				new_map[i] = nullptr;
+			}
+
+			size_t offset = (new_map_size - map_size) / 2;
+			for (size_t i = 0; i < map_size; i++)
+			{
+				new_map[offset + i] = map[i];
+			}
+
+			delete[] map;
+			map = new_map;
+			first_block += offset;
+			last_block += offset;
+			map_size = new_map_size;
+		}
 
 	public:
-		// Costruttore di default
+		class iterator;
+		class const_iterator;
+
 		deque()
 			: map(nullptr), map_size(0), first_block(0),
 			last_block(0), first_elem(0), last_elem(0), count(0)
@@ -28,7 +79,6 @@ namespace STDev
 			initialize_map(2);
 		}
 
-		// Copy constructor
 		deque(const deque& other)
 			: map(nullptr), map_size(0), first_block(0),
 			last_block(0), first_elem(0), last_elem(0), count(0)
@@ -40,7 +90,6 @@ namespace STDev
 			last_elem = other.last_elem;
 			count = other.count;
 
-			// Copia i blocchi allocati
 			for (size_t i = first_block; i <= last_block && count > 0; i++)
 			{
 				if (other.map[i])
@@ -54,16 +103,13 @@ namespace STDev
 			}
 		}
 
-		// Copy assignment
 		deque& operator=(const deque& other)
 		{
 			if (this != &other)
 			{
-				// Pulisci risorse esistenti
 				clear();
 				deallocate_map();
 
-				// Copia dalla sorgente
 				initialize_map(other.map_size);
 				first_block = other.first_block;
 				last_block = other.last_block;
@@ -86,14 +132,12 @@ namespace STDev
 			return *this;
 		}
 
-		// Move constructor
 		deque(deque&& other) noexcept
 			: map(other.map), map_size(other.map_size),
 			first_block(other.first_block), last_block(other.last_block),
 			first_elem(other.first_elem), last_elem(other.last_elem),
 			count(other.count)
 		{
-			// Lascia other in stato valido ma vuoto
 			other.map = nullptr;
 			other.map_size = 0;
 			other.first_block = 0;
@@ -103,16 +147,13 @@ namespace STDev
 			other.count = 0;
 		}
 
-		// Move assignment
 		deque& operator=(deque&& other) noexcept
 		{
 			if (this != &other)
 			{
-				// Pulisci risorse esistenti
 				clear();
 				deallocate_map();
 
-				// Ruba risorse da other
 				map = other.map;
 				map_size = other.map_size;
 				first_block = other.first_block;
@@ -121,7 +162,6 @@ namespace STDev
 				last_elem = other.last_elem;
 				count = other.count;
 
-				// Lascia other in stato valido
 				other.map = nullptr;
 				other.map_size = 0;
 				other.first_block = 0;
@@ -133,14 +173,12 @@ namespace STDev
 			return *this;
 		}
 
-		// Distruttore
 		~deque()
 		{
 			clear();
 			deallocate_map();
 		}
 
-		// Push operations
 		void push_back(const T& value)
 		{
 			if (count == 0)
@@ -198,7 +236,6 @@ namespace STDev
 			count++;
 		}
 
-		// Pop operations
 		void pop_back()
 		{
 			if (count == 0)
@@ -253,7 +290,6 @@ namespace STDev
 			}
 		}
 
-		// Access operations
 		T& operator[](size_t index)
 		{
 			size_t global_idx = first_elem + index;
@@ -324,11 +360,9 @@ namespace STDev
 			return map[last_block][last_elem];
 		}
 
-		// Capacity operations
 		size_t size() const { return count; }
 		bool empty() const { return count == 0; }
 
-		// Utility
 		void clear()
 		{
 			for (size_t i = first_block; i <= last_block && count > 0; i++)
@@ -416,54 +450,318 @@ namespace STDev
 			std::cout << "=====================\n\n";
 		}
 
-	private:
-		void initialize_map(size_t initial_size)
+		// Iterator methods
+		iterator begin();
+		iterator end();
+		const_iterator begin() const;
+		const_iterator end() const;
+		const_iterator cbegin() const;
+		const_iterator cend() const;
+
+		// ============ ITERATOR CLASS ============
+		class iterator
 		{
-			map_size = initial_size;
-			map = new T * [map_size];
-			for (size_t i = 0; i < map_size; i++)
+			friend class deque;
+
+		private:
+			deque* container;
+			size_t index;
+
+			iterator(deque* c, size_t idx) : container(c), index(idx) {}
+
+		public:
+			// Iterator traits
+			using iterator_category = std::random_access_iterator_tag;
+			using value_type = T;
+			using difference_type = ptrdiff_t;
+			using pointer = T*;
+			using reference = T&;
+
+			iterator() : container(nullptr), index(0) {}
+
+			// Dereference
+			reference operator*() const
 			{
-				map[i] = nullptr;
-			}
-			first_block = map_size / 2;
-			last_block = first_block;
-		}
-
-		void deallocate_map()
-		{
-			if (map)
-			{
-				delete[] map;
-				map = nullptr;
-			}
-		}
-
-		T* allocate_block()
-		{
-			return new T[BLOCK_SIZE];
-		}
-
-		void reallocate_map()
-		{
-			size_t new_map_size = map_size * 2;
-			T** new_map = new T * [new_map_size];
-
-			for (size_t i = 0; i < new_map_size; i++)
-			{
-				new_map[i] = nullptr;
+				return (*container)[index];
 			}
 
-			size_t offset = (new_map_size - map_size) / 2;
-			for (size_t i = 0; i < map_size; i++)
+			pointer operator->() const
 			{
-				new_map[offset + i] = map[i];
+				return &((*container)[index]);
 			}
 
-			delete[] map;
-			map = new_map;
-			first_block += offset;
-			last_block += offset;
-			map_size = new_map_size;
-		}
+			// Pre-increment
+			iterator& operator++()
+			{
+				++index;
+				return *this;
+			}
+
+			// Post-increment
+			iterator operator++(int)
+			{
+				iterator temp = *this;
+				++index;
+				return temp;
+			}
+
+			// Pre-decrement
+			iterator& operator--()
+			{
+				--index;
+				return *this;
+			}
+
+			// Post-decrement
+			iterator operator--(int)
+			{
+				iterator temp = *this;
+				--index;
+				return temp;
+			}
+
+			// Arithmetic operators
+			iterator& operator+=(difference_type n)
+			{
+				index += n;
+				return *this;
+			}
+
+			iterator& operator-=(difference_type n)
+			{
+				index -= n;
+				return *this;
+			}
+
+			iterator operator+(difference_type n) const
+			{
+				return iterator(container, index + n);
+			}
+
+			iterator operator-(difference_type n) const
+			{
+				return iterator(container, index - n);
+			}
+
+			difference_type operator-(const iterator& other) const
+			{
+				return static_cast<difference_type>(index) - static_cast<difference_type>(other.index);
+			}
+
+			// Subscript operator
+			reference operator[](difference_type n) const
+			{
+				return (*container)[index + n];
+			}
+
+			// Comparison operators
+			bool operator==(const iterator& other) const
+			{
+				return container == other.container && index == other.index;
+			}
+
+			bool operator!=(const iterator& other) const
+			{
+				return !(*this == other);
+			}
+
+			bool operator<(const iterator& other) const
+			{
+				return index < other.index;
+			}
+
+			bool operator>(const iterator& other) const
+			{
+				return index > other.index;
+			}
+
+			bool operator<=(const iterator& other) const
+			{
+				return index <= other.index;
+			}
+
+			bool operator>=(const iterator& other) const
+			{
+				return index >= other.index;
+			}
+		};
+
+		// ============ CONST_ITERATOR CLASS ============
+		class const_iterator
+		{
+			friend class deque;
+
+		private:
+			const deque* container;
+			size_t index;
+
+			const_iterator(const deque* c, size_t idx) : container(c), index(idx) {}
+
+		public:
+			// Iterator traits
+			using iterator_category = std::random_access_iterator_tag;
+			using value_type = T;
+			using difference_type = ptrdiff_t;
+			using pointer = const T*;
+			using reference = const T&;
+
+			const_iterator() : container(nullptr), index(0) {}
+
+			// Conversion from iterator to const_iterator
+			const_iterator(const iterator& it) : container(it.container), index(it.index) {}
+
+			reference operator*() const
+			{
+				return (*container)[index];
+			}
+
+			pointer operator->() const
+			{
+				return &((*container)[index]);
+			}
+
+			const_iterator& operator++()
+			{
+				++index;
+				return *this;
+			}
+
+			const_iterator operator++(int)
+			{
+				const_iterator temp = *this;
+				++index;
+				return temp;
+			}
+
+			const_iterator& operator--()
+			{
+				--index;
+				return *this;
+			}
+
+			const_iterator operator--(int)
+			{
+				const_iterator temp = *this;
+				--index;
+				return temp;
+			}
+
+			const_iterator& operator+=(difference_type n)
+			{
+				index += n;
+				return *this;
+			}
+
+			const_iterator& operator-=(difference_type n)
+			{
+				index -= n;
+				return *this;
+			}
+
+			const_iterator operator+(difference_type n) const
+			{
+				return const_iterator(container, index + n);
+			}
+
+			const_iterator operator-(difference_type n) const
+			{
+				return const_iterator(container, index - n);
+			}
+
+			difference_type operator-(const const_iterator& other) const
+			{
+				return static_cast<difference_type>(index) - static_cast<difference_type>(other.index);
+			}
+
+			reference operator[](difference_type n) const
+			{
+				return (*container)[index + n];
+			}
+
+			bool operator==(const const_iterator& other) const
+			{
+				return container == other.container && index == other.index;
+			}
+
+			bool operator!=(const const_iterator& other) const
+			{
+				return !(*this == other);
+			}
+
+			bool operator<(const const_iterator& other) const
+			{
+				return index < other.index;
+			}
+
+			bool operator>(const const_iterator& other) const
+			{
+				return index > other.index;
+			}
+
+			bool operator<=(const const_iterator& other) const
+			{
+				return index <= other.index;
+			}
+
+			bool operator>=(const const_iterator& other) const
+			{
+				return index >= other.index;
+			}
+		};
 	};
+
+	// ============ ITERATOR METHOD IMPLEMENTATIONS ============
+
+	template<typename T>
+	typename deque<T>::iterator deque<T>::begin()
+	{
+		return iterator(this, 0);
+	}
+
+	template<typename T>
+	typename deque<T>::iterator deque<T>::end()
+	{
+		return iterator(this, count);
+	}
+
+	template<typename T>
+	typename deque<T>::const_iterator deque<T>::begin() const
+	{
+		return const_iterator(this, 0);
+	}
+
+	template<typename T>
+	typename deque<T>::const_iterator deque<T>::end() const
+	{
+		return const_iterator(this, count);
+	}
+
+	template<typename T>
+	typename deque<T>::const_iterator deque<T>::cbegin() const
+	{
+		return const_iterator(this, 0);
+	}
+
+	template<typename T>
+	typename deque<T>::const_iterator deque<T>::cend() const
+	{
+		return const_iterator(this, count);
+	}
+
+	// Global operator+ for iterator arithmetic (n + iterator)
+	template<typename T>
+	typename deque<T>::iterator operator+(
+		typename deque<T>::iterator::difference_type n,
+		const typename deque<T>::iterator& it)
+	{
+		return it + n;
+	}
+
+	template<typename T>
+	typename deque<T>::const_iterator operator+(
+		typename deque<T>::const_iterator::difference_type n,
+		const typename deque<T>::const_iterator& it)
+	{
+		return it + n;
+	}
 }

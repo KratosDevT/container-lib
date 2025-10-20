@@ -1,594 +1,760 @@
 #include "deque.h"
 #include <iostream>
 #include <cassert>
-#include <utility>
+#include <algorithm>
+#include <numeric>
 
 using namespace STDev;
 
-// ============ TEST PUSH ============
+// ============ TEST ITERATOR BASIC ============
 
-void test_basic_push_back()
+void test_iterator_begin_end()
 {
-    std::cout << "Test: push_back basico... ";
-    deque<int> d;
+	std::cout << "Test: begin() e end()... ";
+	deque<int> d;
 
-    d.push_back(10);
-    d.push_front(7);
-    d.push_front(6);
-    d.push_front(5);
-    d.push_front(4);
-    d.push_front(3);
-    d.push_front(2);
-    d.push_front(1);
-    d.push_front(0);
-    d.push_front(7);
-    d.pop_front();
-    //assert(d.size() == 3);
-    //assert(d[0] == 10);
+	for (int i = 0; i < 10; i++)
+	{
+		d.push_back(i);
+	}
 
+	auto it = d.begin();
+	assert(*it == 0);
 
-    std::cout << "OK\n";
+	auto end_it = d.end();
+	--end_it;
+	assert(*end_it == 9);
 
-    d.print_structure();
+	std::cout << "OK\n";
 }
 
-void test_basic_push_front()
+void test_iterator_increment()
 {
-    std::cout << "Test: push_front basico... ";
-    deque<int> d;
+	std::cout << "Test: operator++... ";
+	deque<int> d;
 
-    d.push_front(10);
-    d.push_front(20);
-    d.push_front(30);
+	d.push_back(10);
+	d.push_back(20);
+	d.push_back(30);
 
-    assert(d.size() == 3);
-    assert(d[0] == 30);
-    assert(d[1] == 20);
-    assert(d[2] == 10);
+	auto it = d.begin();
+	assert(*it == 10);
 
-    std::cout << "OK\n";
+	++it;
+	assert(*it == 20);
+
+	it++;
+	assert(*it == 30);
+
+	++it;
+	assert(it == d.end());
+
+	std::cout << "OK\n";
 }
 
-void test_mixed_push()
+void test_iterator_decrement()
 {
-    std::cout << "Test: push misti... ";
-    deque<int> d;
+	std::cout << "Test: operator--... ";
+	deque<int> d;
 
-    d.push_back(5);
-    d.push_front(3);
-    d.push_back(7);
-    d.push_front(1);
+	d.push_back(10);
+	d.push_back(20);
+	d.push_back(30);
 
-    assert(d.size() == 4);
-    assert(d[0] == 1);
-    assert(d[1] == 3);
-    assert(d[2] == 5);
-    assert(d[3] == 7);
+	auto it = d.end();
+	--it;
+	assert(*it == 30);
 
-    std::cout << "OK\n";
+	it--;
+	assert(*it == 20);
+
+	--it;
+	assert(*it == 10);
+	assert(it == d.begin());
+
+	std::cout << "OK\n";
 }
 
-void test_large_push_back()
+void test_iterator_dereference()
 {
-    std::cout << "Test: molti push_back... ";
-    deque<int> d;
+	std::cout << "Test: operator* e operator->... ";
+	deque<int> d;
 
-    for (int i = 0; i < 25; i++)
-    {
-        d.push_back(i);
-    }
+	d.push_back(100);
+	d.push_back(200);
 
-    assert(d.size() == 25);
-    for (int i = 0; i < 25; i++)
-    {
-        assert(d[i] == i);
-    }
+	auto it = d.begin();
+	assert(*it == 100);
 
-    std::cout << "OK\n";
+	*it = 999;
+	assert(d[0] == 999);
+
+	std::cout << "OK\n";
 }
 
-void test_large_push_front()
+void test_iterator_comparison()
 {
-    std::cout << "Test: molti push_front... ";
-    deque<int> d;
+	std::cout << "Test: operatori di confronto... ";
+	deque<int> d;
 
-    for (int i = 0; i < 25; i++)
-    {
-        d.push_front(i);
-    }
+	for (int i = 0; i < 5; i++)
+	{
+		d.push_back(i);
+	}
 
-    assert(d.size() == 25);
-    for (int i = 0; i < 25; i++)
-    {
-        assert(d[i] == 24 - i);
-    }
+	auto it1 = d.begin();
+	auto it2 = d.begin();
+	auto it3 = d.end();
 
-    std::cout << "OK\n";
+	assert(it1 == it2);
+	assert(it1 != it3);
+	assert(it1 < it3);
+	assert(it3 > it1);
+	assert(it1 <= it2);
+	assert(it1 >= it2);
+
+	std::cout << "OK\n";
 }
 
-// ============ TEST POP ============
+// ============ TEST RANDOM ACCESS ============
 
-void test_pop_back()
+void test_iterator_arithmetic()
 {
-    std::cout << "Test: pop_back()... ";
-    deque<int> d;
+	std::cout << "Test: aritmetica iteratori... ";
+	deque<int> d;
 
-    d.push_back(1);
-    d.push_back(2);
-    d.push_back(3);
-    d.push_back(4);
-    d.push_back(5);
+	for (int i = 0; i < 10; i++)
+	{
+		d.push_back(i * 10);
+	}
 
-    assert(d.size() == 5);
+	auto it = d.begin();
 
-    d.pop_back();
-    assert(d.size() == 4);
-    assert(d.back() == 4);
+	it += 3;
+	assert(*it == 30);
 
-    d.pop_back();
-    d.pop_back();
-    assert(d.size() == 2);
-    assert(d[0] == 1);
-    assert(d[1] == 2);
+	it -= 1;
+	assert(*it == 20);
 
-    std::cout << "OK\n";
+	auto it2 = it + 5;
+	assert(*it2 == 70);
+
+	auto it3 = it2 - 2;
+	assert(*it3 == 50);
+
+	std::cout << "OK\n";
 }
 
-void test_pop_front()
+void test_iterator_subscript()
 {
-    std::cout << "Test: pop_front()... ";
-    deque<int> d;
+	std::cout << "Test: operator[]... ";
+	deque<int> d;
 
-    d.push_back(1);
-    d.push_back(2);
-    d.push_back(3);
-    d.push_back(4);
-    d.push_back(5);
+	for (int i = 0; i < 10; i++)
+	{
+		d.push_back(i);
+	}
 
-    assert(d.size() == 5);
+	auto it = d.begin();
 
-    d.pop_front();
-    assert(d.size() == 4);
-    assert(d.front() == 2);
+	assert(it[0] == 0);
+	assert(it[5] == 5);
+	assert(it[9] == 9);
 
-    d.pop_front();
-    d.pop_front();
-    assert(d.size() == 2);
-    assert(d[0] == 4);
-    assert(d[1] == 5);
+	it += 3;
+	assert(it[0] == 3);
+	assert(it[2] == 5);
 
-    std::cout << "OK\n";
+	std::cout << "OK\n";
 }
 
-void test_pop_until_empty()
+void test_iterator_distance()
 {
-    std::cout << "Test: pop fino a vuoto... ";
-    deque<int> d;
+	std::cout << "Test: distanza tra iteratori... ";
+	deque<int> d;
 
-    d.push_back(1);
-    d.push_back(2);
-    d.push_back(3);
+	for (int i = 0; i < 10; i++)
+	{
+		d.push_back(i);
+	}
 
-    d.pop_back();
-    d.pop_back();
-    d.pop_back();
+	auto it1 = d.begin();
+	auto it2 = d.begin() + 5;
 
-    assert(d.empty());
-    assert(d.size() == 0);
+	assert(it2 - it1 == 5);
+	assert(it1 - it2 == -5);
 
-    std::cout << "OK\n";
+	auto it3 = d.end();
+	assert(it3 - it1 == 10);
+
+	std::cout << "OK\n";
 }
 
-void test_pop_mixed()
+// ============ TEST RANGE-BASED FOR ============
+
+void test_range_based_for()
 {
-    std::cout << "Test: pop misti... ";
-    deque<int> d;
+	std::cout << "Test: range-based for loop... ";
+	deque<int> d;
 
-    for (int i = 1; i <= 10; i++)
-    {
-        d.push_back(i);
-    }
+	for (int i = 0; i < 5; i++)
+	{
+		d.push_back(i);
+	}
 
-    d.pop_front();  // rimuove 1
-    d.pop_back();   // rimuove 10
-    d.pop_front();  // rimuove 2
-    d.pop_back();   // rimuove 9
+	int sum = 0;
+	for (const auto& val : d)
+	{
+		sum += val;
+	}
 
-    assert(d.size() == 6);
-    assert(d.front() == 3);
-    assert(d.back() == 8);
+	assert(sum == 10);
 
-    std::cout << "OK\n";
+	// Modifica tramite reference
+	for (auto& val : d)
+	{
+		val *= 2;
+	}
+
+	assert(d[0] == 0);
+	assert(d[1] == 2);
+	assert(d[2] == 4);
+	assert(d[3] == 6);
+	assert(d[4] == 8);
+
+	std::cout << "OK\n";
 }
 
-// ============ TEST FRONT/BACK ============
+// ============ TEST CONST_ITERATOR ============
 
-void test_front_back()
+void test_const_iterator()
 {
-    std::cout << "Test: front() e back()... ";
-    deque<int> d;
+	std::cout << "Test: const_iterator... ";
+	deque<int> d;
 
-    d.push_back(10);
-    d.push_back(20);
-    d.push_back(30);
+	for (int i = 0; i < 5; i++)
+	{
+		d.push_back(i * 10);
+	}
 
-    assert(d.front() == 10);
-    assert(d.back() == 30);
+	const deque<int>& const_d = d;
 
-    d.front() = 100;
-    d.back() = 300;
+	auto it = const_d.begin();
+	assert(*it == 0);
 
-    assert(d.front() == 100);
-    assert(d.back() == 300);
-    assert(d[0] == 100);
-    assert(d[2] == 300);
+	++it;
+	assert(*it == 10);
 
-    std::cout << "OK\n";
+	it += 3;
+	assert(*it == 40);
+
+	std::cout << "OK\n";
 }
 
-void test_front_back_single()
+void test_cbegin_cend()
 {
-    std::cout << "Test: front/back con 1 elemento... ";
-    deque<int> d;
+	std::cout << "Test: cbegin() e cend()... ";
+	deque<int> d;
 
-    d.push_back(42);
+	for (int i = 0; i < 5; i++)
+	{
+		d.push_back(i);
+	}
 
-    assert(d.front() == 42);
-    assert(d.back() == 42);
-    assert(&d.front() == &d.back());
+	int count = 0;
+	for (auto it = d.cbegin(); it != d.cend(); ++it)
+	{
+		count++;
+	}
 
-    std::cout << "OK\n";
+	assert(count == 5);
+
+	std::cout << "OK\n";
 }
 
-// ============ TEST AT ============
+// ============ TEST STL ALGORITHMS ============
 
-void test_at_valid()
+void test_stl_find()
 {
-    std::cout << "Test: at() valido... ";
-    deque<int> d;
+	std::cout << "Test: std::find... ";
+	deque<int> d;
 
-    d.push_back(10);
-    d.push_back(20);
-    d.push_back(30);
+	for (int i = 0; i < 10; i++)
+	{
+		d.push_back(i);
+	}
 
-    assert(d.at(0) == 10);
-    assert(d.at(1) == 20);
-    assert(d.at(2) == 30);
+	auto it = std::find(d.begin(), d.end(), 5);
+	assert(it != d.end());
+	assert(*it == 5);
 
-    d.at(1) = 200;
-    assert(d.at(1) == 200);
+	auto it2 = std::find(d.begin(), d.end(), 99);
+	assert(it2 == d.end());
 
-    std::cout << "OK\n";
+	std::cout << "OK\n";
 }
 
-void test_at_exception()
+void test_stl_count()
 {
-    std::cout << "Test: at() con eccezione... ";
-    deque<int> d;
+	std::cout << "Test: std::count... ";
+	deque<int> d;
 
-    d.push_back(1);
-    d.push_back(2);
+	d.push_back(1);
+	d.push_back(2);
+	d.push_back(1);
+	d.push_back(3);
+	d.push_back(1);
 
-    bool exception_thrown = false;
-    try
-    {
-        d.at(10);
-    }
-    catch (const std::out_of_range&)
-    {
-        exception_thrown = true;
-    }
-    assert(exception_thrown);
+	int count = std::count(d.begin(), d.end(), 1);
+	assert(count == 3);
 
-    exception_thrown = false;
-    try
-    {
-        d.at(2);
-    }
-    catch (const std::out_of_range&)
-    {
-        exception_thrown = true;
-    }
-    assert(exception_thrown);
-
-    std::cout << "OK\n";
+	std::cout << "OK\n";
 }
 
-// ============ TEST COPY ============
-
-void test_copy_constructor()
+void test_stl_accumulate()
 {
-    std::cout << "Test: copy constructor... ";
-    deque<int> d1;
+	std::cout << "Test: std::accumulate... ";
+	deque<int> d;
 
-    d1.push_back(1);
-    d1.push_back(2);
-    d1.push_back(3);
-    d1.push_front(0);
+	for (int i = 1; i <= 10; i++)
+	{
+		d.push_back(i);
+	}
 
-    deque<int> d2(d1);
+	int sum = std::accumulate(d.begin(), d.end(), 0);
+	assert(sum == 55);
 
-    assert(d2.size() == 4);
-    assert(d2[0] == 0);
-    assert(d2[1] == 1);
-    assert(d2[2] == 2);
-    assert(d2[3] == 3);
-
-    // Modifica d1 non deve influenzare d2
-    d1[0] = 999;
-    assert(d2[0] == 0);
-
-    d1.push_back(100);
-    assert(d2.size() == 4);
-
-    std::cout << "OK\n";
+	std::cout << "OK\n";
 }
 
-void test_copy_assignment()
+void test_stl_sort()
 {
-    std::cout << "Test: copy assignment... ";
-    deque<int> d1;
+	std::cout << "Test: std::sort... ";
+	deque<int> d;
 
-    d1.push_back(1);
-    d1.push_back(2);
-    d1.push_back(3);
+	d.push_back(5);
+	d.push_back(2);
+	d.push_back(8);
+	d.push_back(1);
+	d.push_back(9);
+	d.push_back(3);
 
-    deque<int> d2;
-    d2.push_back(100);
-    d2.push_back(200);
+	std::sort(d.begin(), d.end());
 
-    d2 = d1;
+	for (size_t i = 0; i < d.size() - 1; i++)
+	{
+		assert(d[i] <= d[i + 1]);
+	}
 
-    assert(d2.size() == 3);
-    assert(d2[0] == 1);
-    assert(d2[1] == 2);
-    assert(d2[2] == 3);
+	assert(d[0] == 1);
+	assert(d[5] == 9);
 
-    d1[1] = 888;
-    assert(d2[1] == 2);
-
-    std::cout << "OK\n";
+	std::cout << "OK\n";
 }
 
-void test_self_assignment()
+void test_stl_reverse()
 {
-    std::cout << "Test: self assignment... ";
-    deque<int> d;
+	std::cout << "Test: std::reverse... ";
+	deque<int> d;
 
-    d.push_back(1);
-    d.push_back(2);
-    d.push_back(3);
+	for (int i = 0; i < 5; i++)
+	{
+		d.push_back(i);
+	}
 
-    d = d;
+	std::reverse(d.begin(), d.end());
 
-    assert(d.size() == 3);
-    assert(d[0] == 1);
-    assert(d[1] == 2);
-    assert(d[2] == 3);
+	assert(d[0] == 4);
+	assert(d[1] == 3);
+	assert(d[2] == 2);
+	assert(d[3] == 1);
+	assert(d[4] == 0);
 
-    std::cout << "OK\n";
+	std::cout << "OK\n";
 }
 
-// ============ TEST MOVE ============
-
-void test_move_constructor()
+void test_stl_copy()
 {
-    std::cout << "Test: move constructor... ";
-    deque<int> d1;
+	std::cout << "Test: std::copy... ";
+	deque<int> d1;
+	deque<int> d2;
 
-    d1.push_back(1);
-    d1.push_back(2);
-    d1.push_back(3);
+	for (int i = 0; i < 5; i++)
+	{
+		d1.push_back(i);
+		d2.push_back(0);
+	}
 
-    deque<int> d2(std::move(d1));
+	std::copy(d1.begin(), d1.end(), d2.begin());
 
-    assert(d2.size() == 3);
-    assert(d2[0] == 1);
-    assert(d2[1] == 2);
-    assert(d2[2] == 3);
+	for (size_t i = 0; i < d1.size(); i++)
+	{
+		assert(d1[i] == d2[i]);
+	}
 
-    assert(d1.empty());
-    assert(d1.size() == 0);
-
-    std::cout << "OK\n";
+	std::cout << "OK\n";
 }
 
-void test_move_assignment()
+void test_stl_fill()
 {
-    std::cout << "Test: move assignment... ";
-    deque<int> d1;
+	std::cout << "Test: std::fill... ";
+	deque<int> d;
 
-    d1.push_back(1);
-    d1.push_back(2);
-    d1.push_back(3);
+	for (int i = 0; i < 10; i++)
+	{
+		d.push_back(0);
+	}
 
-    deque<int> d2;
-    d2.push_back(999);
+	std::fill(d.begin(), d.end(), 42);
 
-    d2 = std::move(d1);
+	for (size_t i = 0; i < d.size(); i++)
+	{
+		assert(d[i] == 42);
+	}
 
-    assert(d2.size() == 3);
-    assert(d2[0] == 1);
-    assert(d2[1] == 2);
-    assert(d2[2] == 3);
-
-    assert(d1.empty());
-
-    std::cout << "OK\n";
+	std::cout << "OK\n";
 }
 
-// ============ TEST UTILITIES ============
+// ============ TEST EDGE CASES ============
 
-void test_empty()
+void test_iterator_empty_deque()
 {
-    std::cout << "Test: empty()... ";
-    deque<int> d;
+	std::cout << "Test: iteratore su deque vuota... ";
+	deque<int> d;
 
-    assert(d.empty());
-    assert(d.size() == 0);
+	assert(d.begin() == d.end());
 
-    d.push_back(1);
-    assert(!d.empty());
-    assert(d.size() == 1);
+	int count = 0;
+	for (auto it = d.begin(); it != d.end(); ++it)
+	{
+		count++;
+	}
+	assert(count == 0);
 
-    d.pop_back();
-    assert(d.empty());
-
-    std::cout << "OK\n";
+	std::cout << "OK\n";
 }
 
-void test_clear()
+void test_iterator_single_element()
 {
-    std::cout << "Test: clear()... ";
-    deque<int> d;
+	std::cout << "Test: iteratore con singolo elemento... ";
+	deque<int> d;
 
-    d.push_back(1);
-    d.push_back(2);
-    d.push_back(3);
+	d.push_back(42);
 
-    d.clear();
+	auto it = d.begin();
+	assert(*it == 42);
 
-    assert(d.size() == 0);
-    assert(d.empty());
+	++it;
+	assert(it == d.end());
 
-    // Dovrebbe poter essere riutilizzata
-    d.push_back(10);
-    assert(d.size() == 1);
-    assert(d[0] == 10);
-
-    std::cout << "OK\n";
+	std::cout << "OK\n";
 }
 
-void test_operator_access()
+void test_iterator_across_blocks()
 {
-    std::cout << "Test: operator[]... ";
-    deque<int> d;
+	std::cout << "Test: iteratore attraverso blocchi multipli... ";
+	deque<int> d;
 
-    for (int i = 0; i < 10; i++)
-    {
-        d.push_back(i * 10);
-    }
+	// Inserisci 25 elementi (più di 3 blocchi da 8)
+	for (int i = 0; i < 25; i++)
+	{
+		d.push_back(i);
+	}
 
-    const deque<int>& cd = d;
-    assert(cd[5] == 50);
+	// Verifica che l'iterazione funzioni attraverso i blocchi
+	int expected = 0;
+	for (auto it = d.begin(); it != d.end(); ++it)
+	{
+		assert(*it == expected);
+		expected++;
+	}
+	assert(expected == 25);
 
-    d[3] = 999;
-    assert(d[3] == 999);
+	std::cout << "OK\n";
+}
 
-    std::cout << "OK\n";
+void test_iterator_after_push_front()
+{
+	std::cout << "Test: iteratore dopo push_front... ";
+	deque<int> d;
+
+	d.push_back(5);
+	d.push_back(6);
+	d.push_back(7);
+	d.push_front(4);
+	d.push_front(3);
+	d.push_front(2);
+	d.push_front(1);
+
+	int expected = 1;
+	for (auto it = d.begin(); it != d.end(); ++it)
+	{
+		assert(*it == expected);
+		expected++;
+	}
+
+	std::cout << "OK\n";
+}
+
+void test_iterator_modification()
+{
+	std::cout << "Test: modifica tramite iteratore... ";
+	deque<int> d;
+
+	for (int i = 0; i < 10; i++)
+	{
+		d.push_back(i);
+	}
+
+	// Moltiplica ogni elemento per 2
+	for (auto it = d.begin(); it != d.end(); ++it)
+	{
+		*it *= 2;
+	}
+
+	for (size_t i = 0; i < d.size(); i++)
+	{
+		assert(d[i] == static_cast<int>(i) * 2);
+	}
+
+	std::cout << "OK\n";
 }
 
 // ============ TEST STRESS ============
-
-void test_stress_alternate()
+void test_stress_iteration()
 {
-    std::cout << "Test: stress alternato... ";
-    deque<int> d;
+	std::cout << "Test: stress iterazione... ";
+	deque<int> d;
 
-    for (int i = 0; i < 50; i++)
-    {
-        d.push_back(i);
-        d.push_front(-i - 1);
-    }
+	// Inserisci 1000 elementi
+	for (int i = 0; i < 1000; i++)
+	{
+		d.push_back(i);
+	}
 
-    assert(d.size() == 100);
+	// Verifica iterazione completa
+	int count = 0;
+	for (auto it = d.begin(); it != d.end(); ++it)
+	{
+		assert(*it == count);
+		count++;
+	}
+	assert(count == 1000);
 
-    for (int i = 0; i < 50; i++)
-    {
-        assert(d[i] == -50 + i);
-    }
-    for (int i = 50; i < 100; i++)
-    {
-        assert(d[i] == i - 50);
-    }
+	// Verifica iterazione inversa
+	count = 999;
+	for (auto it = d.end(); it != d.begin(); )
+	{
+		--it;
+		assert(*it == count);
+		count--;
+	}
 
-    std::cout << "OK\n";
+	std::cout << "OK\n";
 }
 
-void test_stress_push_pop()
+void test_stress_stl_algorithms()
 {
-    std::cout << "Test: stress push/pop... ";
-    deque<int> d;
+	std::cout << "Test: stress algoritmi STL... ";
+	deque<int> d;
 
-    // Push molti elementi
-    for (int i = 0; i < 100; i++)
-    {
-        d.push_back(i);
-    }
+	// Crea deque con 500 elementi
+	for (int i = 0; i < 500; i++)
+	{
+		d.push_back(i % 100);
+	}
 
-    // Pop metà da dietro
-    for (int i = 0; i < 50; i++)
-    {
-        d.pop_back();
-    }
+	// Sort
+	std::sort(d.begin(), d.end());
 
-    assert(d.size() == 50);
-    assert(d.front() == 0);
-    assert(d.back() == 49);
+	// Verifica ordinamento
+	for (size_t i = 0; i < d.size() - 1; i++)
+	{
+		assert(d[i] <= d[i + 1]);
+	}
 
-    // Pop metà da davanti
-    for (int i = 0; i < 25; i++)
-    {
-        d.pop_front();
-    }
+	// Count
+	int count = std::count(d.begin(), d.end(), 50);
+	assert(count == 5);
 
-    assert(d.size() == 25);
-    assert(d.front() == 25);
-    assert(d.back() == 49);
+	// Find
+	auto it = std::find(d.begin(), d.end(), 99);
+	assert(it != d.end());
 
-    std::cout << "OK\n";
+	std::cout << "OK\n";
+}
+
+// ============ TEST COMPARISON WITH VECTOR ============
+void test_iterator_compatibility()
+{
+	std::cout << "Test: compatibilità con algoritmi STL... ";
+	deque<int> d;
+
+	for (int i = 1; i <= 10; i++)
+	{
+		d.push_back(i);
+	}
+
+	// Test min_element
+	auto min_it = std::min_element(d.begin(), d.end());
+	assert(*min_it == 1);
+
+	// Test max_element
+	auto max_it = std::max_element(d.begin(), d.end());
+	assert(*max_it == 10);
+
+	// Test binary_search (dopo sort)
+	std::sort(d.begin(), d.end());
+	bool found = std::binary_search(d.begin(), d.end(), 5);
+	assert(found);
+
+	// Test lower_bound
+	auto lower = std::lower_bound(d.begin(), d.end(), 5);
+	assert(*lower == 5);
+
+	// Test upper_bound
+	auto upper = std::upper_bound(d.begin(), d.end(), 5);
+	assert(*upper == 6);
+
+	std::cout << "OK\n";
+}
+
+// ============ TEST VISUAL DEMONSTRATION ============
+
+void test_visual_demonstration()
+{
+	std::cout << "\n=== DIMOSTRAZIONE ITERATORI ===" << std::endl;
+
+	deque<int> d;
+
+	std::cout << "\nCreazione deque con elementi 0-9:" << std::endl;
+	for (int i = 0; i < 10; i++)
+	{
+		d.push_back(i);
+	}
+
+	std::cout << "Contenuto: ";
+	for (auto it = d.begin(); it != d.end(); ++it)
+	{
+		std::cout << *it << " ";
+	}
+	std::cout << "\n" << std::endl;
+
+	std::cout << "Iterazione con range-based for:" << std::endl;
+	std::cout << "Contenuto: ";
+	for (const auto& val : d)
+	{
+		std::cout << val << " ";
+	}
+	std::cout << "\n" << std::endl;
+
+	std::cout << "Modifica: moltiplica per 2 ogni elemento" << std::endl;
+	for (auto& val : d)
+	{
+		val *= 2;
+	}
+
+	std::cout << "Contenuto: ";
+	for (auto it = d.begin(); it != d.end(); ++it)
+	{
+		std::cout << *it << " ";
+	}
+	std::cout << "\n" << std::endl;
+
+	std::cout << "Random access con operator[]:" << std::endl;
+	auto it = d.begin();
+	std::cout << "it[0] = " << it[0] << std::endl;
+	std::cout << "it[5] = " << it[5] << std::endl;
+	std::cout << "it[9] = " << it[9] << std::endl;
+	std::cout << std::endl;
+
+	std::cout << "Aritmetica degli iteratori:" << std::endl;
+	auto it1 = d.begin();
+	auto it2 = it1 + 5;
+	std::cout << "it2 = it1 + 5, *it2 = " << *it2 << std::endl;
+	std::cout << "distanza (it2 - it1) = " << (it2 - it1) << std::endl;
+	std::cout << std::endl;
+
+	std::cout << "Uso con std::sort:" << std::endl;
+	std::cout << "Prima:  ";
+	for (const auto& val : d)
+	{
+		std::cout << val << " ";
+	}
+	std::cout << std::endl;
+
+	std::reverse(d.begin(), d.end());
+
+	std::cout << "Dopo reverse: ";
+	for (const auto& val : d)
+	{
+		std::cout << val << " ";
+	}
+	std::cout << "\n" << std::endl;
+
+	std::cout << "Uso con std::accumulate:" << std::endl;
+	int sum = std::accumulate(d.begin(), d.end(), 0);
+	std::cout << "Somma totale: " << sum << std::endl;
+	std::cout << std::endl;
+
+	d.print_structure();
 }
 
 // ============ MAIN ============
 
 int main()
 {
-    std::cout << "\n";
-    std::cout << "TEST SUITE DEQUE - COMPLETA\n";
-    std::cout << "\n";
+	std::cout << "\n========================================\n";
+	std::cout << "TEST SUITE DEQUE ITERATORS\n";
+	std::cout << "========================================\n\n";
 
-    std::cout << "--- TEST PUSH ---\n";
-    test_basic_push_back();
-    test_basic_push_front();
-    test_mixed_push();
-    test_large_push_back();
-    test_large_push_front();
+	std::cout << "--- TEST ITERATOR BASIC ---\n";
+	test_iterator_begin_end();
+	test_iterator_increment();
+	test_iterator_decrement();
+	test_iterator_dereference();
+	test_iterator_comparison();
 
-    std::cout << "\n--- TEST POP ---\n";
-    test_pop_back();
-    test_pop_front();
-    test_pop_until_empty();
-    test_pop_mixed();
+	std::cout << "\n--- TEST RANDOM ACCESS ---\n";
+	test_iterator_arithmetic();
+	test_iterator_subscript();
+	test_iterator_distance();
 
-    std::cout << "\n--- TEST FRONT/BACK ---\n";
-    test_front_back();
-    test_front_back_single();
+	std::cout << "\n--- TEST RANGE-BASED FOR ---\n";
+	test_range_based_for();
 
-    std::cout << "\n--- TEST AT ---\n";
-    test_at_valid();
-    test_at_exception();
+	std::cout << "\n--- TEST CONST_ITERATOR ---\n";
+	test_const_iterator();
+	test_cbegin_cend();
 
-    std::cout << "\n--- TEST COPY ---\n";
-    test_copy_constructor();
-    test_copy_assignment();
-    test_self_assignment();
+	std::cout << "\n--- TEST STL ALGORITHMS ---\n";
+	test_stl_find();
+	test_stl_count();
+	test_stl_accumulate();
+	test_stl_sort();
+	test_stl_reverse();
+	test_stl_copy();
+	test_stl_fill();
 
-    std::cout << "\n--- TEST MOVE ---\n";
-    test_move_constructor();
-    test_move_assignment();
+	std::cout << "\n--- TEST EDGE CASES ---\n";
+	test_iterator_empty_deque();
+	test_iterator_single_element();
+	test_iterator_across_blocks();
+	test_iterator_after_push_front();
+	test_iterator_modification();
 
-    std::cout << "\n--- TEST UTILITIES ---\n";
-    test_empty();
-    test_clear();
-    test_operator_access();
+	std::cout << "\n--- TEST STRESS ---\n";
+	test_stress_iteration();
+	test_stress_stl_algorithms();
 
-    std::cout << "\n--- TEST STRESS ---\n";
-    test_stress_alternate();
-    test_stress_push_pop();
+	std::cout << "\n--- TEST COMPATIBILITY ---\n";
+	test_iterator_compatibility();
 
-    std::cout << "\n";
-    std::cout << "TUTTI I TEST SONO PASSATI!\n";
-    std::cout << "\n";
+	std::cout << "\n========================================\n";
+	std::cout << "TUTTI I TEST SONO PASSATI!\n";
+	std::cout << "========================================\n";
 
-    return 0;
+	test_visual_demonstration();
+
+	return 0;
 }
