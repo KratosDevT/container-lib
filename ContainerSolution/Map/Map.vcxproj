@@ -124,7 +124,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="testMap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="map.h" />

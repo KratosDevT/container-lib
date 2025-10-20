@@ -123,7 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="testList.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="list.h" />
