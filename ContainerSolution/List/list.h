@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <string>
+#include <iostream>
 
 namespace STDev
 {
@@ -15,19 +16,17 @@ namespace STDev
 
 		Node(const K& val) : nextNode(nullptr), previousNode(nullptr), value(val)
 		{}
-
-
 	};
 
 	template<typename T>
 	class list
 	{
 	private:
-
 		Node<T>* nodeSentinel;
 		size_t _size;
 
 	public:
+		class iterator;
 
 		list() : _size(0)
 		{
@@ -40,7 +39,62 @@ namespace STDev
 			delete nodeSentinel;
 		}
 
-		void push_front(T&& value)
+		// Copy constructor
+		list(const list& other) : _size(0)
+		{
+			nodeSentinel = new Node<T>();
+
+			Node<T>* current = other.nodeSentinel->nextNode;
+			while (current != other.nodeSentinel)
+			{
+				push_back(current->value);
+				current = current->nextNode;
+			}
+		}
+
+		// Copy assignment
+		list& operator=(const list& other)
+		{
+			if (this != &other)
+			{
+				clear();
+
+				Node<T>* current = other.nodeSentinel->nextNode;
+				while (current != other.nodeSentinel)
+				{
+					push_back(current->value);
+					current = current->nextNode;
+				}
+			}
+			return *this;
+		}
+
+		// Move constructor
+		list(list&& other) noexcept
+			: nodeSentinel(other.nodeSentinel), _size(other._size)
+		{
+			other.nodeSentinel = new Node<T>();
+			other._size = 0;
+		}
+
+		// Move assignment
+		list& operator=(list&& other) noexcept
+		{
+			if (this != &other)
+			{
+				clear();
+				delete nodeSentinel;
+
+				nodeSentinel = other.nodeSentinel;
+				_size = other._size;
+
+				other.nodeSentinel = new Node<T>();
+				other._size = 0;
+			}
+			return *this;
+		}
+
+		void push_front(const T& value)
 		{
 			Node<T>* newNode = new Node<T>(value);
 
@@ -64,6 +118,133 @@ namespace STDev
 			nodeSentinel->previousNode = newNode;
 
 			++_size;
+		}
+
+		void pop_front()
+		{
+			if (empty())
+			{
+				throw std::out_of_range("pop_front on empty list");
+			}
+
+			Node<T>* toDelete = nodeSentinel->nextNode;
+
+			nodeSentinel->nextNode = toDelete->nextNode;
+			toDelete->nextNode->previousNode = nodeSentinel;
+
+			delete toDelete;
+			--_size;
+		}
+
+		void pop_back()
+		{
+			if (empty())
+			{
+				throw std::out_of_range("pop_back on empty list");
+			}
+
+			Node<T>* toDelete = nodeSentinel->previousNode;
+
+			nodeSentinel->previousNode = toDelete->previousNode;
+			toDelete->previousNode->nextNode = nodeSentinel;
+
+			delete toDelete;
+			--_size;
+		}
+
+		iterator insert(iterator pos, const T& value)
+		{
+			Node<T>* posNode = pos.current;
+			Node<T>* newNode = new Node<T>(value);
+
+			newNode->previousNode = posNode->previousNode;
+			newNode->nextNode = posNode;
+
+			posNode->previousNode->nextNode = newNode;
+			posNode->previousNode = newNode;
+
+			++_size;
+
+			return iterator(newNode);
+		}
+
+		iterator erase(iterator pos)
+		{
+			if (pos.current == nodeSentinel)
+			{
+				throw std::out_of_range("Cannot erase sentinel");
+			}
+
+			Node<T>* toDelete = pos.current;
+			Node<T>* nextNode = toDelete->nextNode;
+
+			toDelete->previousNode->nextNode = toDelete->nextNode;
+			toDelete->nextNode->previousNode = toDelete->previousNode;
+
+			delete toDelete;
+			--_size;
+
+			return iterator(nextNode);
+		}
+
+		void splice(iterator pos, list& other)
+		{
+			if (other.empty() || this == &other)
+			{
+				return;
+			}
+
+			Node<T>* posNode = pos.current;
+			Node<T>* otherFirst = other.nodeSentinel->nextNode;
+			Node<T>* otherLast = other.nodeSentinel->previousNode;
+
+			other.nodeSentinel->nextNode = other.nodeSentinel;
+			other.nodeSentinel->previousNode = other.nodeSentinel;
+
+			otherFirst->previousNode = posNode->previousNode;
+			otherLast->nextNode = posNode;
+
+			posNode->previousNode->nextNode = otherFirst;
+			posNode->previousNode = otherLast;
+
+			_size += other._size;
+			other._size = 0;
+		}
+
+		T& front()
+		{
+			if (empty())
+			{
+				throw std::out_of_range("front on empty list");
+			}
+			return nodeSentinel->nextNode->value;
+		}
+
+		const T& front() const
+		{
+			if (empty())
+			{
+				throw std::out_of_range("front on empty list");
+			}
+			return nodeSentinel->nextNode->value;
+		}
+
+		T& back()
+		{
+			if (empty())
+			{
+				throw std::out_of_range("back on empty list");
+			}
+			return nodeSentinel->previousNode->value;
+		}
+
+		const T& back() const
+		{
+			if (empty())
+			{
+				throw std::out_of_range("back on empty list");
+			}
+			return nodeSentinel->previousNode->value;
 		}
 
 		void clear()
@@ -104,7 +285,6 @@ namespace STDev
 				return;
 			}
 
-			// Visualizzazione lineare
 			std::cout << "[Sentinel]";
 			Node<T>* current = nodeSentinel->nextNode;
 			while (current != nodeSentinel)
@@ -114,7 +294,6 @@ namespace STDev
 			}
 			std::cout << " <-> [Sentinel] (circular)\n" << std::endl;
 
-			// Stampa dettagliata usando print_node
 			std::cout << "Detailed nodes:" << std::endl;
 			print_node(nodeSentinel, "Sentinel");
 
@@ -152,15 +331,19 @@ namespace STDev
 		}
 
 
-	public:
 
+		iterator begin();
+		iterator end();
+		const iterator begin() const;
+		const iterator end() const;
+
+	public:
 		class iterator // bidirectional iterator
 		{
-
+			friend class list;
 			Node<T>* current;
 
 		public:
-
 			iterator(Node<T>* ptr) : current(ptr)
 			{}
 
@@ -177,7 +360,7 @@ namespace STDev
 			{
 				iterator temp = *this;
 				current = current->nextNode;
-				return temp; //return the previous copy
+				return temp;
 			}
 
 			iterator& operator--() // --it
@@ -212,16 +395,30 @@ namespace STDev
 			{
 				return &(current->value);
 			}
-		};//end class iterator
+		};
+	};
 
-		iterator begin()
-		{
-			return iterator(nodeSentinel->nextNode);
-		}
-		iterator end()
-		{
-			return iterator(nodeSentinel);
-		}
+	template<typename T>
+	typename list<T>::iterator list<T>::begin()
+	{
+		return iterator(nodeSentinel->nextNode);
+	}
 
-	};// end class list
+	template<typename T>
+	typename list<T>::iterator list<T>::end()
+	{
+		return iterator(nodeSentinel);
+	}
+
+	template<typename T>
+	const typename list<T>::iterator list<T>::begin() const
+	{
+		return iterator(nodeSentinel->nextNode);
+	}
+
+	template<typename T>
+	const typename list<T>::iterator list<T>::end() const
+	{
+		return iterator(nodeSentinel);
+	}
 }
