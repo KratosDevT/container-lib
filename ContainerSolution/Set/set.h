@@ -288,14 +288,29 @@ namespace STDev
 			return node;
 		}
 
-		void destroy_helper(Node* node) // attenzione allo stack overflow
+		void destroy_helper(Node* node) //meglio questa versione ciclica che quella ricorsiva
 		{
-			if (!node)
-				return;
+			if (!node) return;
 
-			destroy_helper(node->left);
-			destroy_helper(node->right);
-			delete node;
+			stack<Node*> s;
+			s.push(node);
+
+			while (!s.empty())
+			{
+				Node* current = s.top();
+				s.pop();
+
+				if (current->left)
+				{
+					s.push(current->left);
+				}
+
+				if (current->right)
+				{
+					s.push(current->right);
+				}
+				delete current;
+			}
 		}
 
 		void print_helper(Node* node, const std::string& prefix, bool isLeft) const
