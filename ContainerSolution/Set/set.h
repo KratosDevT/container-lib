@@ -2,6 +2,7 @@
 #include <utility>
 #include <iostream>
 #include <stdexcept>
+#include "stack.h"
 
 namespace STDev
 {
@@ -34,7 +35,6 @@ namespace STDev
 		Node* root;
 		size_t _size;
 
-		// Inserimento nodo (BST standard)
 		Node* insert_node(const K& key, bool& inserted)
 		{
 			Node* parentNode = nullptr;
@@ -79,7 +79,6 @@ namespace STDev
 			return newNode;
 		}
 
-		// Fixup per Red-Black Tree dopo inserimento
 		void insert_fixup(Node* node)
 		{
 			node->color = RED;
@@ -91,7 +90,6 @@ namespace STDev
 					Node* uncle = node->parent->parent->right;
 					if (uncle != nullptr && uncle->color == RED)
 					{
-						// Caso 1: zio rosso
 						node->parent->color = BLACK;
 						uncle->color = BLACK;
 						node->parent->parent->color = RED;
@@ -99,13 +97,11 @@ namespace STDev
 					}
 					else
 					{
-						// Caso 2: zio nero
 						if (node == node->parent->right)
 						{
 							node = node->parent;
 							rotate_left(node);
 						}
-						// Caso 3
 						node->parent->color = BLACK;
 						node->parent->parent->color = RED;
 						rotate_right(node->parent->parent);
@@ -113,7 +109,6 @@ namespace STDev
 				}
 				else
 				{
-					// Simmetrico
 					Node* uncle = node->parent->parent->left;
 					if (uncle != nullptr && uncle->color == RED)
 					{
@@ -138,7 +133,6 @@ namespace STDev
 			root->color = BLACK;
 		}
 
-		// Rotazioni
 		void rotate_left(Node* node)
 		{
 			Node* rightChild = node->right;
@@ -197,7 +191,6 @@ namespace STDev
 			node->parent = leftChild;
 		}
 
-		// Ricerca
 		Node* find_helper(Node* node, const K& key) const
 		{
 			while (node != nullptr)
@@ -218,7 +211,6 @@ namespace STDev
 			return nullptr;
 		}
 
-		// Trova minimo
 		Node* find_min(Node* node) const
 		{
 			while (node && node->left)
@@ -226,7 +218,6 @@ namespace STDev
 			return node;
 		}
 
-		// Copia profonda
 		Node* copy_helper(Node* node)
 		{
 			if (!node)
@@ -251,7 +242,6 @@ namespace STDev
 			return new_node;
 		}
 
-		// Cancellazione (BST semplice)
 		Node* erase_helper(Node* node, const K& key, bool& erased)
 		{
 			if (!node)
@@ -270,40 +260,35 @@ namespace STDev
 				erased = true;
 				_size--;
 
-				// Nodo foglia
 				if (!node->left && !node->right)
 				{
 					delete node;
 					return nullptr;
 				}
-				// Un solo figlio destro
 				else if (!node->left)
 				{
 					Node* temp = node->right;
 					delete node;
 					return temp;
 				}
-				// Un solo figlio sinistro
 				else if (!node->right)
 				{
 					Node* temp = node->left;
 					delete node;
 					return temp;
 				}
-				// Due figli
 				else
 				{
 					Node* successor = find_min(node->right);
 					const_cast<K&>(node->key) = successor->key;
 					node->right = erase_helper(node->right, successor->key, erased);
-					_size++; // Compenso perché verrà decrementato di nuovo
+					_size++;
 				}
 			}
 			return node;
 		}
 
-		// Distruzione ricorsiva
-		void destroy_helper(Node* node)
+		void destroy_helper(Node* node) // attenzione allo stack overflow
 		{
 			if (!node)
 				return;
@@ -313,7 +298,6 @@ namespace STDev
 			delete node;
 		}
 
-		// Stampa struttura
 		void print_helper(Node* node, const std::string& prefix, bool isLeft) const
 		{
 			if (node != nullptr)
@@ -345,10 +329,8 @@ namespace STDev
 		}
 
 	public:
-		// Costruttore di default
 		set() : root(nullptr), _size(0) {}
 
-		// Distruttore
 		~set()
 		{
 			destroy_helper(root);
@@ -395,7 +377,6 @@ namespace STDev
 			return *this;
 		}
 
-		// Inserimento
 		bool insert(const K& key)
 		{
 			bool inserted = false;
@@ -409,7 +390,6 @@ namespace STDev
 			return inserted;
 		}
 
-		// Cancellazione
 		bool erase(const K& key)
 		{
 			bool erased = false;
@@ -417,7 +397,6 @@ namespace STDev
 			return erased;
 		}
 
-		// Ricerca
 		bool find(const K& key) const
 		{
 			return find_helper(root, key) != nullptr;
@@ -428,11 +407,9 @@ namespace STDev
 			return find(key);
 		}
 
-		// Capacità
 		size_t size() const { return _size; }
 		bool empty() const { return _size == 0; }
 
-		// Clear
 		void clear()
 		{
 			destroy_helper(root);
@@ -440,7 +417,6 @@ namespace STDev
 			_size = 0;
 		}
 
-		// Stampa
 		void print_tree() const
 		{
 			std::cout << "=== Set Structure ===" << std::endl;
@@ -476,32 +452,33 @@ namespace STDev
 			std::cout << std::endl;
 		}
 
-		// Iteratore (in-order traversal)
 		class iterator
 		{
 		private:
 			Node* current;
 			Node* root_node;
-			Node* stack[1000];
-			int stack_size;
+			stack<Node*> _stack;
 
 			void push_left(Node* node)
 			{
 				while (node)
 				{
-					stack[stack_size++] = node;
+					_stack.push(node);
 					node = node->left;
 				}
 			}
 
 		public:
-			iterator(Node* node, Node* r) : current(nullptr), root_node(r), stack_size(0)
+			iterator(Node* node, Node* r) : current(nullptr), root_node(r)
 			{
 				if (node == nullptr && root_node != nullptr)
 				{
 					push_left(root_node);
-					if (stack_size > 0)
-						current = stack[--stack_size];
+					if (_stack.size() > 0)
+					{
+						current = _stack.top();
+						_stack.pop();
+					}
 				}
 				else
 				{
@@ -527,12 +504,16 @@ namespace STDev
 				if (current->right)
 				{
 					push_left(current->right);
-					if (stack_size > 0)
-						current = stack[--stack_size];
+					if (_stack.size() > 0)
+					{
+						current = _stack.top();
+						_stack.pop();
+					}
 				}
-				else if (stack_size > 0)
+				else if (_stack.size() > 0)
 				{
-					current = stack[--stack_size];
+					current = _stack.top();
+					_stack.pop();
 				}
 				else
 				{

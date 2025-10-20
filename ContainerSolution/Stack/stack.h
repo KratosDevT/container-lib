@@ -5,7 +5,7 @@
 
 namespace STDev
 {
-	template<typename T, typename Container = STDev::deque<T>>
+	template<typename T, typename Container = deque<T>>
 	class stack
 	{
 	private:

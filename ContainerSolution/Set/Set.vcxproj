@@ -102,6 +102,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)Stack;$(SolutionDir)Deque</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,6 +128,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="set.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Deque\Deque.vcxproj">
+      <Project>{f3df3745-1fc8-43ca-99f5-d2dbcf342814}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Stack\Stack.vcxproj">
+      <Project>{7c1882cc-dbeb-4162-bc9b-c52a13b67041}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
