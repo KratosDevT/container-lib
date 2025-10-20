@@ -12,13 +12,10 @@ namespace STDev
 		Container container_;
 
 	public:
-		// Costruttore di default
 		stack() : container_() {}
 
-		// Copy constructor
 		stack(const stack& other) : container_(other.container_) {}
 
-		// Copy assignment
 		stack& operator=(const stack& other)
 		{
 			if (this != &other)
@@ -28,10 +25,8 @@ namespace STDev
 			return *this;
 		}
 
-		// Move constructor
 		stack(stack&& other) noexcept : container_(std::move(other.container_)) {}
 
-		// Move assignment
 		stack& operator=(stack&& other) noexcept
 		{
 			if (this != &other)
@@ -41,16 +36,13 @@ namespace STDev
 			return *this;
 		}
 
-		// Distruttore (default va bene)
 		~stack() = default;
 
-		// Push element
 		void push(const T& value)
 		{
 			container_.push_back(value);
 		}
 
-		// Pop element
 		void pop()
 		{
 			if (empty())
@@ -60,7 +52,6 @@ namespace STDev
 			container_.pop_back();
 		}
 
-		// Access top element
 		T& top()
 		{
 			if (empty())
@@ -79,7 +70,6 @@ namespace STDev
 			return container_.back();
 		}
 
-		// Capacity
 		bool empty() const
 		{
 			return container_.empty();
@@ -90,13 +80,11 @@ namespace STDev
 			return container_.size();
 		}
 
-		// Utility: clear all elements
 		void clear()
 		{
 			container_.clear();
 		}
 
-		// Debug: print stack contents (top to bottom)
 		void print() const
 		{
 			if (empty())
@@ -106,7 +94,6 @@ namespace STDev
 			}
 
 			std::cout << "Stack (top to bottom): ";
-			// Stampiamo al contrario per mostrare il top per primo
 			for (size_t i = container_.size(); i > 0; --i)
 			{
 				std::cout << container_[i - 1];

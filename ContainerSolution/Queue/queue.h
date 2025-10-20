@@ -11,13 +11,10 @@ namespace STDev
 		Container container_;
 
 	public:
-		// Costruttore di default
 		queue() : container_() {}
 
-		// Copy constructor
 		queue(const queue& other) : container_(other.container_) {}
 
-		// Copy assignment
 		queue& operator=(const queue& other)
 		{
 			if (this != &other)
@@ -27,10 +24,8 @@ namespace STDev
 			return *this;
 		}
 
-		// Move constructor
 		queue(queue&& other) noexcept : container_(std::move(other.container_)) {}
 
-		// Move assignment
 		queue& operator=(queue&& other) noexcept
 		{
 			if (this != &other)
@@ -40,16 +35,13 @@ namespace STDev
 			return *this;
 		}
 
-		// Distruttore (default va bene)
 		~queue() = default;
 
-		// Push element (enqueue)
 		void push(const T& value)
 		{
 			container_.push_back(value);
 		}
 
-		// Pop element (dequeue)
 		void pop()
 		{
 			if (empty())
@@ -59,7 +51,6 @@ namespace STDev
 			container_.pop_front();
 		}
 
-		// Access front element
 		T& front()
 		{
 			if (empty())
@@ -78,7 +69,6 @@ namespace STDev
 			return container_.front();
 		}
 
-		// Access back element
 		T& back()
 		{
 			if (empty())
@@ -97,7 +87,6 @@ namespace STDev
 			return container_.back();
 		}
 
-		// Capacity
 		bool empty() const
 		{
 			return container_.empty();
@@ -108,13 +97,11 @@ namespace STDev
 			return container_.size();
 		}
 
-		// Utility: clear all elements
 		void clear()
 		{
 			container_.clear();
 		}
 
-		// Debug: print queue contents (front to back)
 		void print() const
 		{
 			if (empty())
