@@ -376,6 +376,8 @@ namespace STDev
 			count = 0;
 			first_elem = 0;
 			last_elem = 0;
+			first_block = map_size / 2;
+			last_block = first_block;
 		}
 
 		void print_structure() const
