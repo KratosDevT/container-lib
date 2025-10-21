@@ -7,7 +7,6 @@ namespace STDev
 {
 	enum class TreeType
 	{
-
 		//BST(Binary Search Tree)
 		//Nessun bilanciamento
 		//Caso peggiore : O(n) diventa una lista!

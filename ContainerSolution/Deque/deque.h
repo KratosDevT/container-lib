@@ -290,7 +290,7 @@ namespace STDev
 			}
 		}
 
-		T& operator[](size_t index)
+		T& operator[](size_t index)  //manca controllo di bound
 		{
 			size_t global_idx = first_elem + index;
 			size_t block_idx = first_block + global_idx / BLOCK_SIZE;
@@ -298,7 +298,7 @@ namespace STDev
 			return map[block_idx][elem_idx];
 		}
 
-		const T& operator[](size_t index) const
+		const T& operator[](size_t index) const //manca controllo di bound
 		{
 			size_t global_idx = first_elem + index;
 			size_t block_idx = first_block + global_idx / BLOCK_SIZE;
