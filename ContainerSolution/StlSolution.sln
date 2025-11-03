@@ -17,7 +17,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Stack", "Stack\Stack.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Queue", "Queue\Queue.vcxproj", "{96BAA867-B441-43BA-99D4-CE1C4EE29F22}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BubbleSort", "BubbleSort\BubbleSort.vcxproj", "{B3526747-AA22-43CE-8C48-9D27FF904D4E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sorting", "BubbleSort\BubbleSort.vcxproj", "{B3526747-AA22-43CE-8C48-9D27FF904D4E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnorderedMap", "UnorderedMap\UnorderedMap.vcxproj", "{7D333EAE-FBE7-4F1F-B976-C1B5649BCD8C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -91,6 +93,14 @@ Global
 		{B3526747-AA22-43CE-8C48-9D27FF904D4E}.Release|x64.Build.0 = Release|x64
 		{B3526747-AA22-43CE-8C48-9D27FF904D4E}.Release|x86.ActiveCfg = Release|Win32
 		{B3526747-AA22-43CE-8C48-9D27FF904D4E}.Release|x86.Build.0 = Release|Win32
+		{7D333EAE-FBE7-4F1F-B976-C1B5649BCD8C}.Debug|x64.ActiveCfg = Debug|x64
+		{7D333EAE-FBE7-4F1F-B976-C1B5649BCD8C}.Debug|x64.Build.0 = Debug|x64
+		{7D333EAE-FBE7-4F1F-B976-C1B5649BCD8C}.Debug|x86.ActiveCfg = Debug|Win32
+		{7D333EAE-FBE7-4F1F-B976-C1B5649BCD8C}.Debug|x86.Build.0 = Debug|Win32
+		{7D333EAE-FBE7-4F1F-B976-C1B5649BCD8C}.Release|x64.ActiveCfg = Release|x64
+		{7D333EAE-FBE7-4F1F-B976-C1B5649BCD8C}.Release|x64.Build.0 = Release|x64
+		{7D333EAE-FBE7-4F1F-B976-C1B5649BCD8C}.Release|x86.ActiveCfg = Release|Win32
+		{7D333EAE-FBE7-4F1F-B976-C1B5649BCD8C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
