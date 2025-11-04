@@ -4,10 +4,12 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <unordered_map>
+#include <chrono>
 
 using namespace STDev;
 
-// ==================== UTILITIES ====================
+//==================== UTILITIES ====================
 
 class TestStats
 {
@@ -435,6 +437,31 @@ void test_visual_demonstration()
 	m.erase(7);
 
 	m.print_structure();
+}
+
+void test_rehash_performance()
+{
+	section_header("TEST: REHASH PERFORMANCE");
+
+	const int N = 100000;
+	unordered_map<int, int> m;
+
+	auto start = std::chrono::high_resolution_clock::now();
+
+	// Inserisci molti elementi per forzare rehash multipli
+	for (int i = 0; i < N; i++)
+	{
+		m.insert(i, i * 2);
+	}
+
+	auto end = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+	std::cout << "Inserted " << N << " elements in " << duration.count() << " ms" << std::endl;
+	std::cout << "Final bucket count: " << m.bucket_count() << std::endl;
+	std::cout << "Load factor: " << m.load_factor() << std::endl;
+
+	test_assert(m.size() == N, "All elements inserted");
 }
 
 // ==================== MAIN ====================
