@@ -236,40 +236,116 @@ public:
 		return *this;
 	}
 
-	void insert(const K& key, const V& value)
+	std::pair<iterator, bool> insert(const std::pair<K, V>& pair)
+	{
+		return insert(pair.first, pair.second);
+	}
+
+	std::pair<iterator, bool> insert(const K& key, const V& value)
 	{
 		check_and_rehash();
 
 		size_t idx = hash(key);
 		Node* current = buckets[idx];
 
-		//update node value if same key
 		while (current)
 		{
 			if (current->data.first == key)
 			{
-				current->data.second = value; // Update
-				return;
+				return { iterator(this, idx, current), false }; // false = non inserito (return actual value)
 			}
 			current = current->next;
 		}
 
-		// Insert new node at front of bucket
 		Node* new_node = new Node(key, value);
-		new_node->next = buckets[idx]; // ci metto quello che c'era prima
+		new_node->next = buckets[idx];
 		buckets[idx] = new_node;
 		++_size;
+
+		return { iterator(this, idx, new_node), true }; // true = inserito
+	}
+
+	std::pair<iterator, bool> insert_or_assign(const K& key, const V& value)
+	{
+		check_and_rehash();
+
+		size_t idx = hash(key);
+		Node* current = buckets[idx];
+
+		while (current)
+		{
+			if (current->data.first == key)
+			{
+				current->data.second = value; //UPDATE!
+				return { iterator(this, idx, current), false }; // false = non inserito (aggiornato)
+			}
+			current = current->next;
+		}
+
+		Node* new_node = new Node(key, value);
+		new_node->next = buckets[idx];
+		buckets[idx] = new_node;
+		++_size;
+
+		return { iterator(this, idx, new_node), true }; // true = inserito
 	}
 
 	V& operator[](const K& key)
 	{
-		Node* node = find_node(key);
-		if (!node)//insert default constructor value if key not found
+		check_and_rehash();
+
+		size_t idx = hash(key);
+		Node* current = buckets[idx];
+
+		while (current)
 		{
-			insert(key, V());
-			node = find_node(key);
+			if (current->data.first == key)
+			{
+				return current->data.second;
+			}
+			current = current->next;
 		}
+
+		Node* new_node = new Node(key, V()); // V() = default constructor
+		new_node->next = buckets[idx];
+		buckets[idx] = new_node;
+		++_size;
+
+		return new_node->data.second;
+	}
+
+	const V& operator[](const K& key) const
+	{
+		Node* node = find_node(key);
+		if (!node)
+			throw std::out_of_range("STDev::unordered_map::operator[]: key not found (const map), cannot insert");
 		return node->data.second;
+	}
+
+	template<typename... Args>
+	std::pair<iterator, bool> emplace(const K& key, Args&&... args)
+	{
+		check_and_rehash();
+
+		size_t idx = hash(key);
+		Node* current = buckets[idx];
+
+		while (current)
+		{
+			if (current->data.first == key)
+			{
+				return { iterator(this, idx, current), false };
+			}
+			current = current->next;
+		}
+
+		// Costruisce il nodo in-place con perfect forwarding
+		Node* new_node = new Node(key, V(std::forward<Args>(args)...));
+		new_node->next = buckets[idx];
+		buckets[idx] = new_node;
+		++_size;
+
+		return { iterator(this, idx, new_node), true };
 	}
 
 	V& at(const K& key) // with bound check
@@ -288,14 +364,27 @@ public:
 		return node->data.second;
 	}
 
-	bool find(const K& key) const
+	iterator find(const K& key)
 	{
-		return find_node(key) != nullptr;
+		Node* node = find_node(key);
+		if (!node)
+			return end();
+
+		return iterator(this, hash(key), node);
+	}
+
+	const_iterator find(const K& key) const
+	{
+		Node* node = find_node(key);
+		if (!node)
+			return end();
+
+		return const_iterator(this, hash(key), node);
 	}
 
 	bool contains(const K& key) const
 	{
-		return find(key);
+		return find_node(key) != nullptr;
 	}
 
 	bool erase(const K& key)
@@ -325,6 +414,46 @@ public:
 		}
 
 		return false;
+	}
+
+	iterator erase(iterator it)
+	{
+		if (it == end() || it.current == nullptr)
+			return end();
+
+		K key_to_erase = it->first;
+
+		iterator next = ++it;
+
+		erase(key_to_erase);
+
+		return next;
+	}
+
+	iterator erase(const_iterator pos)
+	{
+		if (pos == end() || pos.current == nullptr)
+			return end();
+
+		K key_to_erase = pos->first;
+		iterator next(this, pos.bucket_idx, const_cast<Node*>(pos.current));
+		++next;
+
+		erase(key_to_erase);
+		return next;
+	}
+
+	iterator erase_range(const_iterator first, const_iterator last)
+	{
+		std::vector<K> keys_to_erase;
+
+		for (auto it = first; it != last; ++it)
+			keys_to_erase.push_back(it->first);
+
+		for (const K& key : keys_to_erase)
+			erase(key);
+
+		return iterator(this, last.bucket_idx, const_cast<Node*>(last.current));
 	}
 
 	void clear()

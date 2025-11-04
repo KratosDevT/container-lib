@@ -74,9 +74,9 @@ void test_basic_operations()
 	test_assert(!m.empty(), "Map not empty after insert");
 	test_assert(m.size() == 1, "Map size is 1 after insert");
 
-	// Test find
-	test_assert(m.find(5), "Find existing key");
-	test_assert(!m.find(10), "Don't find non-existing key");
+	// Test find (ritorna iterator ora!)
+	test_assert(m.find(5) != m.end(), "Find existing key");
+	test_assert(m.find(10) == m.end(), "Don't find non-existing key");
 
 	// Test at
 	try
@@ -108,7 +108,7 @@ void test_basic_operations()
 	bool erased = m.erase(5);
 	test_assert(erased, "erase() returns true on existing key");
 	test_assert(m.size() == 3, "Size decreased after erase");
-	test_assert(!m.find(5), "Key not found after erase");
+	test_assert(m.find(5) == m.end(), "Key not found after erase");
 
 	bool not_erased = m.erase(999);
 	test_assert(!not_erased, "erase() returns false on non-existing key");
@@ -138,7 +138,7 @@ void test_operator_bracket()
 	// Test default value creation
 	std::string val = m[999];
 	test_assert(m.size() == 2, "operator[] creates new entry");
-	test_assert(m.find(999), "New key exists");
+	test_assert(m.find(999) != m.end(), "New key exists");
 }
 
 void test_copy_and_assignment()
@@ -168,7 +168,7 @@ void test_copy_and_assignment()
 	m3 = m1;
 	test_assert(m3.size() == 3, "Copy assignment: size matches");
 	test_assert(m3.at(1) == "one", "Copy assignment: data matches");
-	test_assert(!m3.find(99), "Copy assignment: old data removed");
+	test_assert(m3.find(99) == m3.end(), "Copy assignment: old data removed");
 }
 
 void test_move_semantics()
@@ -265,7 +265,7 @@ void test_hash_collisions()
 	bool all_correct = true;
 	for (int i = 0; i < 100; i++)
 	{
-		if (!m.find(i) || m.at(i) != i * 2)
+		if (m.find(i) == m.end() || m.at(i) != i * 2)
 		{
 			all_correct = false;
 			break;
@@ -303,7 +303,7 @@ void test_rehashing()
 	bool all_found = true;
 	for (int i = 0; i < 50; i++)
 	{
-		if (!m.find(i) || m.at(i) != i)
+		if (m.find(i) == m.end() || m.at(i) != i)
 		{
 			all_found = false;
 			break;
@@ -318,11 +318,16 @@ void test_edge_cases()
 
 	unordered_map<int, int> m;
 
-	// Insert duplicate key
-	m.insert(5, 100);
-	m.insert(5, 200);
+	// Insert duplicate key - ORA NON aggiorna più!
+	auto [it1, ins1] = m.insert(5, 100);
+	auto [it2, ins2] = m.insert(5, 200);
 	test_assert(m.size() == 1, "Duplicate insert doesn't increase size");
-	test_assert(m.at(5) == 200, "Duplicate insert updates value");
+	test_assert(!ins2, "Duplicate insert returns false");
+	test_assert(m.at(5) == 100, "Duplicate insert does NOT update value (standard behavior)");
+
+	// Test insert_or_assign per aggiornare
+	m.insert_or_assign(5, 200);
+	test_assert(m.at(5) == 200, "insert_or_assign updates value");
 
 	// Erase from empty
 	unordered_map<int, int> empty_map;
@@ -382,7 +387,7 @@ void test_stress()
 	bool all_correct = true;
 	for (int i = 0; i < N; i++)
 	{
-		if (!m.find(i) || m.at(i) != i * 2)
+		if (m.find(i) == m.end() || m.at(i) != i * 2)
 		{
 			all_correct = false;
 			break;
@@ -402,7 +407,7 @@ void test_stress()
 	bool remaining_correct = true;
 	for (int i = N / 2; i < N; i++)
 	{
-		if (!m.find(i) || m.at(i) != i * 2)
+		if (m.find(i) == m.end() || m.at(i) != i * 2)
 		{
 			remaining_correct = false;
 			break;
@@ -452,7 +457,7 @@ void test_rehash_performance()
 	bool all_found = true;
 	for (int i = 0; i < N; i++)
 	{
-		if (!m.find(i) || m.at(i) != i * 2)
+		if (m.find(i) == m.end() || m.at(i) != i * 2)
 		{
 			all_found = false;
 			break;
@@ -469,6 +474,73 @@ void test_rehash_performance()
 #endif
 	std::cout << "3. Recompile and run again" << std::endl;
 	std::cout << "4. Compare the times!\n" << std::endl;
+}
+
+void test_new_features()
+{
+	section_header("TEST 12: NEW FEATURES (insert semantics, find iterator, erase iterator)");
+
+	unordered_map<int, std::string> m;
+
+	// Test insert standard semantics - NON aggiorna
+	std::cout << "\n--- Testing insert() standard semantics ---" << std::endl;
+	auto [it1, inserted1] = m.insert(5, "five");
+	std::cout << "Insert (5, 'five'): " << (inserted1 ? "inserted" : "not inserted")
+		<< " -> value = " << it1->second << std::endl;
+	test_assert(inserted1, "First insert returns true");
+	test_assert(it1->second == "five", "First insert has correct value");
+
+	auto [it2, inserted2] = m.insert(5, "FIVE_UPDATED");
+	std::cout << "Insert (5, 'FIVE_UPDATED'): " << (inserted2 ? "inserted" : "not inserted")
+		<< " -> value = " << it2->second << std::endl;
+	test_assert(!inserted2, "Duplicate insert returns false");
+	test_assert(it2->second == "five", "Duplicate insert does NOT update");
+
+	// Test insert_or_assign - aggiorna
+	std::cout << "\n--- Testing insert_or_assign() ---" << std::endl;
+	auto [it3, inserted3] = m.insert_or_assign(5, "FIVE_UPDATED");
+	std::cout << "insert_or_assign (5, 'FIVE_UPDATED'): "
+		<< (inserted3 ? "inserted" : "updated")
+		<< " -> value = " << it3->second << std::endl;
+	test_assert(!inserted3, "insert_or_assign on existing returns false");
+	test_assert(it3->second == "FIVE_UPDATED", "insert_or_assign updates value");
+
+	// Test find ritorna iterator
+	std::cout << "\n--- Testing find() returns iterator ---" << std::endl;
+	m.insert(10, "ten");
+	auto found = m.find(10);
+	test_assert(found != m.end(), "find() returns valid iterator");
+	std::cout << "Found key 10 -> value = " << found->second << std::endl;
+
+	// Modifica tramite iterator
+	found->second = "TEN_MODIFIED";
+	test_assert(m.at(10) == "TEN_MODIFIED", "Can modify through iterator");
+	std::cout << "Modified through iterator -> value = " << m.at(10) << std::endl;
+
+	// Test find non trovato
+	auto not_found = m.find(999);
+	test_assert(not_found == m.end(), "find() returns end() for missing key");
+
+	// Test erase(iterator)
+	std::cout << "\n--- Testing erase(iterator) ---" << std::endl;
+	m.insert(20, "twenty");
+	m.insert(30, "thirty");
+	std::cout << "Size before erase: " << m.size() << std::endl;
+
+	auto it_erase = m.find(20);
+	test_assert(it_erase != m.end(), "Element to erase exists");
+
+	auto next = m.erase(it_erase);
+	std::cout << "Size after erase: " << m.size() << std::endl;
+	test_assert(m.find(20) == m.end(), "Element erased successfully");
+	test_assert(m.size() == 3, "Size decreased after erase");
+
+	// Test emplace
+	std::cout << "\n--- Testing emplace() ---" << std::endl;
+	auto [it_emp, ins_emp] = m.emplace(40, "forty");
+	std::cout << "emplace (40, 'forty'): " << (ins_emp ? "inserted" : "not inserted") << std::endl;
+	test_assert(ins_emp, "emplace inserts new element");
+	test_assert(it_emp->second == "forty", "emplace has correct value");
 }
 
 void test_visual_demonstration()
@@ -519,6 +591,7 @@ int main()
 	test_edge_cases();
 	test_different_types();
 	test_stress();
+	test_new_features(); 
 
 	test_rehash_performance();
 
