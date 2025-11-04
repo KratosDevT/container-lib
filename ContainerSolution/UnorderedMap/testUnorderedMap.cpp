@@ -411,6 +411,66 @@ void test_stress()
 	test_assert(remaining_correct, "Stress: remaining elements correct");
 }
 
+void test_rehash_performance()
+{
+	section_header("TEST 11: REHASH PERFORMANCE COMPARISON");
+
+	const int N = 10000000;
+
+#if USE_OPTIMIZED_REHASH
+	std::cout << "\nTESTING: OPTIMIZED VERSION (without allocation)" << std::endl;
+#else
+	std::cout << "\nTESTING: STANDARD VERSION (with allocation)" << std::endl;
+#endif
+
+	std::cout << "Inserting " << N << " elements..." << std::endl;
+
+	unordered_map<int, int> m;
+
+	auto start = std::chrono::high_resolution_clock::now();
+
+	// Insert many elements to force multiple rehashes
+	for (int i = 0; i < N; i++)
+	{
+		m.insert(i, i * 2);
+	}
+
+	auto end = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+	std::cout << "\nRESULTS:" << std::endl;
+	std::cout << "========================================" << std::endl;
+	std::cout << "Time taken:     " << duration.count() << " ms" << std::endl;
+	std::cout << "Elements:       " << m.size() << std::endl;
+	std::cout << "Final buckets:  " << m.bucket_count() << std::endl;
+	std::cout << "Load factor:    " << m.load_factor() << std::endl;
+	std::cout << "========================================\n" << std::endl;
+
+	test_assert(m.size() == N, "All elements inserted correctly");
+
+	// Verify all elements are accessible
+	bool all_found = true;
+	for (int i = 0; i < N; i++)
+	{
+		if (!m.find(i) || m.at(i) != i * 2)
+		{
+			all_found = false;
+			break;
+		}
+	}
+	test_assert(all_found, "All elements accessible after rehashing");
+
+	std::cout << "TO COMPARE VERSIONS:" << std::endl;
+	std::cout << "1. Note the time above" << std::endl;
+#if USE_OPTIMIZED_REHASH
+	std::cout << "2. Change USE_OPTIMIZED_REHASH to 0 in unordered_map.h" << std::endl;
+#else
+	std::cout << "2. Change USE_OPTIMIZED_REHASH to 1 in unordered_map.h" << std::endl;
+#endif
+	std::cout << "3. Recompile and run again" << std::endl;
+	std::cout << "4. Compare the times!\n" << std::endl;
+}
+
 void test_visual_demonstration()
 {
 	section_header("VISUAL DEMONSTRATION");
@@ -439,31 +499,6 @@ void test_visual_demonstration()
 	m.print_structure();
 }
 
-void test_rehash_performance()
-{
-	section_header("TEST: REHASH PERFORMANCE");
-
-	const int N = 100000;
-	unordered_map<int, int> m;
-
-	auto start = std::chrono::high_resolution_clock::now();
-
-	// Inserisci molti elementi per forzare rehash multipli
-	for (int i = 0; i < N; i++)
-	{
-		m.insert(i, i * 2);
-	}
-
-	auto end = std::chrono::high_resolution_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-
-	std::cout << "Inserted " << N << " elements in " << duration.count() << " ms" << std::endl;
-	std::cout << "Final bucket count: " << m.bucket_count() << std::endl;
-	std::cout << "Load factor: " << m.load_factor() << std::endl;
-
-	test_assert(m.size() == N, "All elements inserted");
-}
-
 // ==================== MAIN ====================
 
 int main()
@@ -484,6 +519,8 @@ int main()
 	test_edge_cases();
 	test_different_types();
 	test_stress();
+
+	test_rehash_performance();
 
 	// Print test summary
 	g_stats.print_summary();

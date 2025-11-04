@@ -6,6 +6,12 @@
 #include <stdexcept>
 #include <vector>
 
+// ========== SCEGLI LA VERSIONE QUI ==========
+// 0 = Versione con allocazione (meno efficiente)
+// 1 = Versione senza allocazione (ottimizzata)
+#define USE_OPTIMIZED_REHASH 1
+// ============================================
+
 #ifndef STDEV_MACROS
 #define STDEV_MACROS
 
@@ -80,6 +86,30 @@ private:
 
 	void rehash(size_t new_bucket_count)
 	{
+#if USE_OPTIMIZED_REHASH
+		// ========== VERSIONE OTTIMIZZATA (SENZA RIALLOCAZIONE) ==========
+		std::vector<Node*> old_buckets = std::move(buckets);
+		buckets = std::vector<Node*>(new_bucket_count, nullptr);
+		// _size rimane invariato!
+
+		for (Node* head : old_buckets)
+		{
+			while (head)
+			{
+				Node* next = head->next;
+
+				// Ricalcola indice con la nuova dimensione
+				size_t new_idx = hash_function<K>(head->data.first) % new_bucket_count;
+
+				// Sposta il nodo nel nuovo bucket (riusa il nodo esistente!)
+				head->next = buckets[new_idx];
+				buckets[new_idx] = head;
+
+				head = next;
+			}
+		}
+#else
+		// ========== VERSIONE CON ALLOCAZIONE (MENO EFFICIENTE) ==========
 		std::vector<Node*> old_buckets = std::move(buckets);
 		buckets = std::vector<Node*>(new_bucket_count, nullptr);
 		_size = 0;
@@ -94,6 +124,7 @@ private:
 				head = next;
 			}
 		}
+#endif
 	}
 
 	void check_and_rehash()
