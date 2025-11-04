@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnorderedMap", "UnorderedMa
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnorderedSet", "UnorderedSet\UnorderedSet.vcxproj", "{2B65C080-D3DE-49EA-9E86-A4EB5DB0620D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PriorityQueue", "PriorityQueue\PriorityQueue.vcxproj", "{49530B83-33AD-42EF-9C0C-AC63AAC8A144}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -111,6 +113,14 @@ Global
 		{2B65C080-D3DE-49EA-9E86-A4EB5DB0620D}.Release|x64.Build.0 = Release|x64
 		{2B65C080-D3DE-49EA-9E86-A4EB5DB0620D}.Release|x86.ActiveCfg = Release|Win32
 		{2B65C080-D3DE-49EA-9E86-A4EB5DB0620D}.Release|x86.Build.0 = Release|Win32
+		{49530B83-33AD-42EF-9C0C-AC63AAC8A144}.Debug|x64.ActiveCfg = Debug|x64
+		{49530B83-33AD-42EF-9C0C-AC63AAC8A144}.Debug|x64.Build.0 = Debug|x64
+		{49530B83-33AD-42EF-9C0C-AC63AAC8A144}.Debug|x86.ActiveCfg = Debug|Win32
+		{49530B83-33AD-42EF-9C0C-AC63AAC8A144}.Debug|x86.Build.0 = Debug|Win32
+		{49530B83-33AD-42EF-9C0C-AC63AAC8A144}.Release|x64.ActiveCfg = Release|x64
+		{49530B83-33AD-42EF-9C0C-AC63AAC8A144}.Release|x64.Build.0 = Release|x64
+		{49530B83-33AD-42EF-9C0C-AC63AAC8A144}.Release|x86.ActiveCfg = Release|Win32
+		{49530B83-33AD-42EF-9C0C-AC63AAC8A144}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
