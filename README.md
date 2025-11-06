@@ -24,6 +24,7 @@ Una libreria completa di strutture dati **STL-compliant** implementata da zero p
 - [Quando Usare Cosa](#-quando-usare-cosa)
 - [Test Suite](#-test-suite)
 - [Complessità Computazionale](#-complessità-computazionale)
+- [Concetti C++ Fondamentali](#-concetti-c-fondamentali)
 
 ---
 
@@ -1507,6 +1508,24 @@ s.contains(0.3);  // Potrebbe essere false!
 // ✅ MEGLIO
 unordered_set<int> s;  // Usa integer se possibile
 ```
+
+---
+
+## 📚 Concetti C++ Fondamentali
+
+Oltre alle strutture dati, questa libreria include guide approfondite su concetti fondamentali di C++:
+
+### 📖 [Lvalue, Rvalue, Lvalue Reference e Rvalue Reference](LVALUE_RVALUE_REFERENCES.md)
+
+Una guida completa per comprendere:
+- **Lvalue vs Rvalue**: differenze e quando usare ciascuno
+- **Lvalue Reference (`&`)**: riferimenti a lvalue
+- **Rvalue Reference (`&&`)**: riferimenti a rvalue e move semantics
+- **Move Semantics**: come ottimizzare le performance evitando copie costose
+- **Perfect Forwarding**: preservare value categories in template
+- **Best Practices**: quando e come usare move, forward, e reference types
+
+Questa guida è essenziale per capire come funzionano internamente i container STL e come implementare copy/move constructor in modo efficiente.
 
 ---
 
