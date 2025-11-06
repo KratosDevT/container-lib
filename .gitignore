@@ -416,3 +416,9 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# C++ compiled binaries
+ContainerSolution/examples_lvalue_rvalue
+ContainerSolution/test*
+!ContainerSolution/*.cpp
+!ContainerSolution/*.h

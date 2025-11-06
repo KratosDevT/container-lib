@@ -1527,6 +1527,24 @@ Una guida completa per comprendere:
 
 Questa guida è essenziale per capire come funzionano internamente i container STL e come implementare copy/move constructor in modo efficiente.
 
+#### Esempio Pratico
+
+Un file di esempio completo è disponibile: [`ContainerSolution/examples_lvalue_rvalue.cpp`](ContainerSolution/examples_lvalue_rvalue.cpp)
+
+Per compilare ed eseguire:
+```bash
+cd ContainerSolution
+g++ -std=c++17 -Wall -Wextra -o examples_lvalue_rvalue examples_lvalue_rvalue.cpp
+./examples_lvalue_rvalue
+```
+
+L'esempio dimostra:
+- Differenza pratica tra lvalue e rvalue
+- Uso di lvalue reference e rvalue reference
+- Move semantics con una classe custom
+- Perfect forwarding in action
+- Use cases comuni (RVO, swap, emplace)
+
 ---
 
 ## 📚 Risorse Aggiuntive
